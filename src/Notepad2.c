@@ -40,6 +40,10 @@
 #include "SciCall.h"
 #include "resource.h"
 
+#ifndef TBCDRF_USECDCOLORS
+#define TBCDRF_USECDCOLORS 0x00800000
+#endif
+
 
 
 /******************************************************************************
@@ -657,6 +661,7 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInst,LPSTR lpCmdLine,int n
   msgTaskbarCreated = RegisterWindowMessage(L"TaskbarCreated");
 
   hModUxTheme = LoadLibrary(L"uxtheme.dll");
+  DarkMode_Init();
 
   Scintilla_RegisterClasses(hInstance);
 
@@ -1035,13 +1040,34 @@ LRESULT CALLBACK MainWndProc(HWND hwnd,UINT umsg,WPARAM wParam,LPARAM lParam)
     case WM_MOUSEACTIVATE:
     case WM_NCHITTEST:
     case WM_NCCALCSIZE:
-    case WM_NCPAINT:
     case WM_PAINT:
-    case WM_ERASEBKGND:
     case WM_NCMOUSEMOVE:
     case WM_NCLBUTTONDOWN:
     case WM_WINDOWPOSCHANGING:
     case WM_WINDOWPOSCHANGED:
+      return DefWindowProc(hwnd,umsg,wParam,lParam);
+
+    case WM_NCPAINT:
+    case WM_NCACTIVATE: {
+      LRESULT result = DefWindowProc(hwnd,umsg,wParam,lParam);
+      if (DarkMode_IsEnabled())
+        DarkMode_DrawMenuBorder(hwnd);
+      return result;
+    }
+
+    case WM_UAHDRAWMENU:
+    case WM_UAHDRAWMENUITEM:
+      if (DarkMode_DrawMenu(hwnd,umsg,lParam))
+        return 0;
+      return DefWindowProc(hwnd,umsg,wParam,lParam);
+
+    case WM_ERASEBKGND:
+      if (DarkMode_IsEnabled()) {
+        RECT rect;
+        GetClientRect(hwnd,&rect);
+        FillRect((HDC)wParam,&rect,DarkMode_Brush(DARK_BACKGROUND));
+        return TRUE;
+      }
       return DefWindowProc(hwnd,umsg,wParam,lParam);
 
     case WM_CREATE:
@@ -1130,19 +1156,24 @@ LRESULT CALLBACK MainWndProc(HWND hwnd,UINT umsg,WPARAM wParam,LPARAM lParam)
         return FALSE;
 
 
-    // Reinitialize theme-dependent values and resize windows
+    case WM_SETTINGCHANGE:
     case WM_THEMECHANGED:
-      MsgThemeChanged(hwnd,wParam,lParam);
-      break;
-
-
-    // update Scintilla colors
     case WM_SYSCOLORCHANGE:
-      {
-        extern PEDITLEXER pLexCurrent;
-        Style_SetLexer(hwndEdit,pLexCurrent);
-        return DefWindowProc(hwnd,umsg,wParam,lParam);
+      if (IsWindow(hwndEdit) && IsWindow(hwndToolbar)) {
+        BOOL changed = DarkMode_Update();
+        if (changed) {
+          DarkMode_SetTitleBar(hwnd);
+          DarkMode_ThemeControl(hwndEdit,L"DarkMode_Explorer");
+          DarkMode_ThemeControl(hwndEditFrame,L"Explorer");
+          DarkMode_RefreshDialogs();
+          DrawMenuBar(hwnd);
+        }
+        if (changed || umsg == WM_THEMECHANGED)
+          MsgThemeChanged(hwnd,wParam,lParam);
+        if (changed || umsg == WM_SYSCOLORCHANGE)
+          Style_ApplyEditorStyles(hwndEdit,DarkMode_IsEnabled());
       }
+      return DefWindowProc(hwnd,umsg,wParam,lParam);
 
 
     //case WM_TIMER:
@@ -1672,6 +1703,12 @@ LRESULT MsgCreate(HWND hwnd,WPARAM wParam,LPARAM lParam)
     cyEditFrame = 0;
   }
 
+  if (DarkMode_IsEnabled()) {
+    DarkMode_SetTitleBar(hwnd);
+    DarkMode_ThemeControl(hwndEdit,L"DarkMode_Explorer");
+    DarkMode_ThemeControl(hwndEditFrame,L"Explorer");
+  }
+
   // Create Toolbar and Statusbar
   CreateBars(hwnd,hInstance);
 
@@ -1731,6 +1768,70 @@ LRESULT MsgCreate(HWND hwnd,WPARAM wParam,LPARAM lParam)
 //  CreateBars() - Create Toolbar and Statusbar
 //
 //
+static void PaintDarkStatusBar(HWND hwnd,HDC dc)
+{
+  RECT client;
+  GetClientRect(hwnd,&client);
+  FillRect(dc,&client,DarkMode_Brush(DARK_SURFACE));
+
+  int saved = SaveDC(dc);
+  HFONT font = (HFONT)SendMessage(hwnd,WM_GETFONT,0,0);
+  if (font)
+    SelectObject(dc,font);
+  SetBkMode(dc,TRANSPARENT);
+  SetTextColor(dc,DARK_TEXT);
+  SetDCBrushColor(dc,DARK_BORDER);
+
+  BOOL simple = (BOOL)SendMessage(hwnd,SB_ISSIMPLE,0,0);
+  int parts = simple ? 1 : (int)SendMessage(hwnd,SB_GETPARTS,0,0);
+  for (int part = 0; part < parts; ++part) {
+    UINT index = simple ? STATUS_HELP : part;
+    RECT rect = client;
+    if (!simple && !SendMessage(hwnd,SB_GETRECT,index,(LPARAM)&rect))
+      continue;
+
+    LRESULT length = SendMessage(hwnd,SB_GETTEXTLENGTH,index,0);
+    if (HIWORD(length) & SBT_OWNERDRAW)
+      continue;
+    WCHAR *text = LocalAlloc(LMEM_FIXED,(LOWORD(length)+1)*sizeof(WCHAR));
+    if (!text)
+      continue;
+    SendMessage(hwnd,SB_GETTEXT,index,(LPARAM)text);
+    if (part > 0) {
+      RECT divider = { rect.left-1, rect.top+3, rect.left, rect.bottom-3 };
+      FillRect(dc,&divider,(HBRUSH)GetStockObject(DC_BRUSH));
+    }
+    rect.left += 4;
+    rect.right -= 3;
+    DrawText(dc,text,-1,&rect,DT_SINGLELINE|DT_VCENTER|DT_NOPREFIX|DT_END_ELLIPSIS);
+    LocalFree(text);
+  }
+  RestoreDC(dc,saved);
+}
+
+static LRESULT CALLBACK DarkStatusBarProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam,
+                                          UINT_PTR id,DWORD_PTR data)
+{
+  switch (msg) {
+    case WM_ERASEBKGND:
+      return TRUE;
+    case WM_PAINT: {
+      PAINTSTRUCT paint;
+      HDC dc = BeginPaint(hwnd,&paint);
+      PaintDarkStatusBar(hwnd,dc);
+      EndPaint(hwnd,&paint);
+      return 0;
+    }
+    case WM_PRINTCLIENT:
+      PaintDarkStatusBar(hwnd,(HDC)wParam);
+      return 0;
+    case WM_NCDESTROY:
+      RemoveWindowSubclass(hwnd,DarkStatusBarProc,id);
+      break;
+  }
+  return DefSubclassProc(hwnd,msg,wParam,lParam);
+}
+
 void CreateBars(HWND hwnd,HINSTANCE hInstance)
 {
   RECT rc;
@@ -1749,6 +1850,8 @@ void CreateBars(HWND hwnd,HINSTANCE hInstance)
   DWORD dwReBarStyle = WS_REBAR;
 
   BOOL bIsAppThemed = PrivateIsAppThemed();
+  BOOL dark = DarkMode_IsEnabled();
+  COLORREF toolbarBackground = dark ? DARK_SURFACE : GetSysColor(COLOR_3DFACE);
 
   int i,n;
   WCHAR tchDesc[256];
@@ -1757,6 +1860,10 @@ void CreateBars(HWND hwnd,HINSTANCE hInstance)
   WCHAR *pIniSection = NULL;
   int   cchIniSection = 0;
 
+  if (dark) {
+    dwToolbarStyle |= TBSTYLE_TRANSPARENT;
+    dwReBarStyle &= ~(WS_BORDER|RBS_BANDBORDERS);
+  }
   if (bShowToolbar)
     dwReBarStyle |= WS_VISIBLE;
 
@@ -1781,7 +1888,7 @@ void CreateBars(HWND hwnd,HINSTANCE hInstance)
   }
   GetObject(hbmp,sizeof(BITMAP),&bmp);
   if (!IsXP())
-    BitmapMergeAlpha(hbmp,GetSysColor(COLOR_3DFACE));
+    BitmapMergeAlpha(hbmp,toolbarBackground);
   himl = ImageList_Create(bmp.bmWidth/NUMTOOLBITMAPS,bmp.bmHeight,ILC_COLOR32|ILC_MASK,0,0);
   ImageList_AddMasked(himl,hbmp,CLR_DEFAULT);
   DeleteObject(hbmp);
@@ -1823,11 +1930,11 @@ void CreateBars(HWND hwnd,HINSTANCE hInstance)
   if (!bExternalBitmap) {
     BOOL fProcessed = FALSE;
     if (flagToolbarLook == 1)
-      fProcessed = BitmapAlphaBlend(hbmpCopy,GetSysColor(COLOR_3DFACE),0x60);
+      fProcessed = BitmapAlphaBlend(hbmpCopy,toolbarBackground,0x60);
     else if (flagToolbarLook == 2 || (!IsXP() && flagToolbarLook == 0))
       fProcessed = BitmapGrayScale(hbmpCopy);
     if (fProcessed && !IsXP())
-      BitmapMergeAlpha(hbmpCopy,GetSysColor(COLOR_3DFACE));
+      BitmapMergeAlpha(hbmpCopy,toolbarBackground);
     if (fProcessed) {
       himl = ImageList_Create(bmp.bmWidth/NUMTOOLBITMAPS,bmp.bmHeight,ILC_COLOR32|ILC_MASK,0,0);
       ImageList_AddMasked(himl,hbmpCopy,CLR_DEFAULT);
@@ -1886,7 +1993,7 @@ void CreateBars(HWND hwnd,HINSTANCE hInstance)
   rbBand.fMask   = /*RBBIM_COLORS | RBBIM_TEXT | RBBIM_BACKGROUND | */
                    RBBIM_STYLE | RBBIM_CHILD | RBBIM_CHILDSIZE /*| RBBIM_SIZE*/;
   rbBand.fStyle  = /*RBBS_CHILDEDGE |*//* RBBS_BREAK |*/ RBBS_FIXEDSIZE /*| RBBS_GRIPPERALWAYS*/;
-  if (bIsAppThemed)
+  if (bIsAppThemed && !dark)
     rbBand.fStyle |= RBBS_CHILDEDGE;
   rbBand.hbmBack = NULL;
   rbBand.lpText     = L"Toolbar";
@@ -1895,6 +2002,15 @@ void CreateBars(HWND hwnd,HINSTANCE hInstance)
   rbBand.cyMinChild = (rc.bottom - rc.top) + 2 * rc.top;
   rbBand.cx         = 0;
   SendMessage(hwndReBar,RB_INSERTBAND,(WPARAM)-1,(LPARAM)&rbBand);
+
+  if (dark) {
+    SendMessage(hwndToolbar,TB_SETPARENT,(WPARAM)hwnd,0);
+    DarkMode_ThemeControl(hwndToolbar,L"");
+    DarkMode_ThemeControl(hwndReBar,L"");
+    DarkMode_ThemeControl((HWND)SendMessage(hwndToolbar,TB_GETTOOLTIPS,0,0),L"DarkMode_Explorer");
+    SendMessage(hwndReBar,RB_SETBKCOLOR,0,toolbarBackground);
+    SetWindowSubclass(hwndStatus,DarkStatusBarProc,0,0);
+  }
 
   SetWindowPos(hwndReBar,NULL,0,0,0,0,SWP_NOZORDER);
   GetWindowRect(hwndReBar,&rc);
@@ -1950,7 +2066,13 @@ void MsgThemeChanged(HWND hwnd,WPARAM wParam,LPARAM lParam)
   // recreate toolbar and statusbar
   Toolbar_GetButtons(hwndToolbar,IDT_FILE_NEW,tchToolbarButtons,COUNTOF(tchToolbarButtons));
 
+  HIMAGELIST images = (HIMAGELIST)SendMessage(hwndToolbar,TB_GETIMAGELIST,0,0);
+  HIMAGELIST hotImages = (HIMAGELIST)SendMessage(hwndToolbar,TB_GETHOTIMAGELIST,0,0);
+  HIMAGELIST disabledImages = (HIMAGELIST)SendMessage(hwndToolbar,TB_GETDISABLEDIMAGELIST,0,0);
   DestroyWindow(hwndToolbar);
+  if (images) ImageList_Destroy(images);
+  if (hotImages) ImageList_Destroy(hotImages);
+  if (disabledImages) ImageList_Destroy(disabledImages);
   DestroyWindow(hwndReBar);
   DestroyWindow(hwndStatus);
   CreateBars(hwnd,hInstance);
@@ -5349,6 +5471,24 @@ LRESULT MsgNotify(HWND hwnd,WPARAM wParam,LPARAM lParam)
 
       switch(pnmh->code)
       {
+
+        case NM_CUSTOMDRAW:
+          if (DarkMode_IsEnabled()) {
+            NMTBCUSTOMDRAW *draw = (NMTBCUSTOMDRAW *)lParam;
+            if (draw->nmcd.dwDrawStage == CDDS_PREPAINT) {
+              FillRect(draw->nmcd.hdc,&draw->nmcd.rc,DarkMode_Brush(DARK_SURFACE));
+              return CDRF_NOTIFYITEMDRAW;
+            }
+            if (draw->nmcd.dwDrawStage == CDDS_ITEMPREPAINT) {
+              draw->clrText = (draw->nmcd.uItemState & CDIS_DISABLED) ? DARK_DISABLED_TEXT : DARK_TEXT;
+              draw->clrBtnFace = DARK_HOT;
+              draw->clrBtnHighlight = DARK_BORDER;
+              draw->clrHighlightHotTrack = DARK_HOT;
+              draw->clrMark = DARK_HOT;
+              return TBCDRF_HILITEHOTTRACK|TBCDRF_USECDCOLORS;
+            }
+          }
+          return CDRF_DODEFAULT;
 
         case TBN_ENDADJUST:
           UpdateToolbar();

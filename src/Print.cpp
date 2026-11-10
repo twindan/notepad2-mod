@@ -31,6 +31,7 @@
 extern "C" {
 #include "dialogs.h"
 #include "helpers.h"
+#include "styles.h"
 }
 #include "resource.h"
 
@@ -285,6 +286,10 @@ extern "C" BOOL EditPrint(HWND hwnd,LPCWSTR pszDocTitle,LPCWSTR pszPageFormat)
     lstrcat(dateString,timeString);
   }
 
+  const BOOL wasDark = DarkMode_IsEnabled();
+  if (wasDark)
+    Style_ApplyEditorStyles(hwnd,FALSE);
+
   // Set print color mode
   int printColorModes[5] = {
     SC_PRINT_NORMAL,
@@ -427,6 +432,8 @@ extern "C" BOOL EditPrint(HWND hwnd,LPCWSTR pszDocTitle,LPCWSTR pszPageFormat)
   }
 
   SendMessage(hwnd,SCI_FORMATRANGE, FALSE, 0);
+  if (wasDark)
+    Style_ApplyEditorStyles(hwnd,DarkMode_IsEnabled());
 
   EndDoc(hdc);
   DeleteDC(hdc);

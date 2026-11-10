@@ -218,6 +218,26 @@ typedef struct {
 
 BOOL GetThemedDialogFont(LPWSTR,WORD*);
 DLGTEMPLATE* LoadThemedDialogTemplate(LPCTSTR,HINSTANCE);
+// System app theme
+#define WM_UAHDRAWMENU     0x0091
+#define WM_UAHDRAWMENUITEM 0x0092
+#define DARK_BACKGROUND RGB(32,32,32)
+#define DARK_SURFACE RGB(43,43,43)
+#define DARK_TEXT RGB(240,240,240)
+#define DARK_DISABLED_TEXT RGB(150,150,150)
+#define DARK_BORDER RGB(80,80,80)
+#define DARK_HOT RGB(65,65,65)
+
+void DarkMode_Init(void);
+BOOL DarkMode_Update(void);
+BOOL DarkMode_IsEnabled(void);
+void DarkMode_SetTitleBar(HWND);
+void DarkMode_RefreshDialogs(void);
+void DarkMode_ThemeControl(HWND,LPCWSTR);
+HBRUSH DarkMode_Brush(COLORREF);
+BOOL DarkMode_DrawMenu(HWND,UINT,LPARAM);
+void DarkMode_DrawMenuBorder(HWND);
+
 #define ThemedDialogBox(hInstance,lpTemplate,hWndParent,lpDialogFunc) \
   ThemedDialogBoxParam(hInstance,lpTemplate,hWndParent,lpDialogFunc,0)
 INT_PTR ThemedDialogBoxParam(HINSTANCE,LPCTSTR,HWND,DLGPROC,LPARAM);

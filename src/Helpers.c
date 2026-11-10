@@ -2010,6 +2010,279 @@ DLGTEMPLATE* LoadThemedDialogTemplate(LPCTSTR lpDialogTemplateID,HINSTANCE hInst
   return(pTemplate);
 }
 
+// The private theme exports changed signatures in Windows 10 version 1903.
+typedef LONG (WINAPI *RtlGetVersionFn)(OSVERSIONINFOW *);
+typedef BOOLEAN (WINAPI *AllowDarkModeForWindowFn)(HWND,BOOLEAN);
+typedef int (WINAPI *SetPreferredAppModeFn)(int);
+typedef void (WINAPI *RefreshThemeFn)(void);
+typedef HRESULT (WINAPI *DwmSetWindowAttributeFn)(HWND,DWORD,LPCVOID,DWORD);
+typedef HRESULT (WINAPI *SetWindowThemeFn)(HWND,LPCWSTR,LPCWSTR);
+
+static AllowDarkModeForWindowFn allowDarkModeForWindow;
+static SetPreferredAppModeFn setPreferredAppMode;
+static RefreshThemeFn refreshColorPolicy;
+static RefreshThemeFn flushMenuThemes;
+static DwmSetWindowAttributeFn setWindowAttribute;
+static SetWindowThemeFn setWindowTheme;
+static BOOL darkModeSupported;
+static BOOL darkModeEnabled;
+
+void DarkMode_Init(void)
+{
+  OSVERSIONINFOW version = { sizeof(OSVERSIONINFOW) };
+  RtlGetVersionFn getVersion = (RtlGetVersionFn)GetProcAddress(
+    GetModuleHandle(L"ntdll.dll"),"RtlGetVersion");
+
+  if (!getVersion || getVersion(&version) != 0 ||
+      version.dwMajorVersion < 10 || version.dwBuildNumber < 18362)
+    return;
+
+  darkModeSupported = TRUE;
+  if (hModUxTheme) {
+    allowDarkModeForWindow = (AllowDarkModeForWindowFn)GetProcAddress(hModUxTheme,MAKEINTRESOURCEA(133));
+    setPreferredAppMode = (SetPreferredAppModeFn)GetProcAddress(hModUxTheme,MAKEINTRESOURCEA(135));
+    refreshColorPolicy = (RefreshThemeFn)GetProcAddress(hModUxTheme,MAKEINTRESOURCEA(104));
+    flushMenuThemes = (RefreshThemeFn)GetProcAddress(hModUxTheme,MAKEINTRESOURCEA(136));
+    setWindowTheme = (SetWindowThemeFn)GetProcAddress(hModUxTheme,"SetWindowTheme");
+  }
+
+  // Retain the module for the lifetime of the process.
+  HMODULE dwm = LoadLibraryEx(L"dwmapi.dll",NULL,LOAD_LIBRARY_SEARCH_SYSTEM32);
+  if (dwm)
+    setWindowAttribute = (DwmSetWindowAttributeFn)GetProcAddress(dwm,"DwmSetWindowAttribute");
+  DarkMode_Update();
+}
+
+BOOL DarkMode_Update(void)
+{
+  HIGHCONTRAST contrast = { sizeof(HIGHCONTRAST) };
+  DWORD lightTheme = 1, type = 0, size = sizeof(lightTheme);
+  BOOL enabled = darkModeSupported && PrivateIsAppThemed() &&
+    SystemParametersInfo(SPI_GETHIGHCONTRAST,sizeof(contrast),&contrast,0) &&
+    !(contrast.dwFlags & HCF_HIGHCONTRASTON) &&
+    SHGetValue(HKEY_CURRENT_USER,L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+                L"AppsUseLightTheme",&type,&lightTheme,&size) == ERROR_SUCCESS &&
+    type == REG_DWORD && size == sizeof(lightTheme) &&
+    lightTheme == 0;
+
+  if (enabled == darkModeEnabled)
+    return FALSE;
+
+  darkModeEnabled = enabled;
+  if (setPreferredAppMode)
+    setPreferredAppMode(enabled ? 1 : 0); // AllowDark / Default
+  if (refreshColorPolicy)
+    refreshColorPolicy();
+  if (flushMenuThemes)
+    flushMenuThemes();
+  return TRUE;
+}
+
+BOOL DarkMode_IsEnabled(void)
+{
+  return darkModeEnabled;
+}
+
+void DarkMode_SetTitleBar(HWND hwnd)
+{
+  if (allowDarkModeForWindow)
+    allowDarkModeForWindow(hwnd,darkModeEnabled);
+  if (setWindowAttribute) {
+    // Windows 10 builds before 20H1 used attribute 19.
+    if (FAILED(setWindowAttribute(hwnd,20,&darkModeEnabled,sizeof(darkModeEnabled))))
+      setWindowAttribute(hwnd,19,&darkModeEnabled,sizeof(darkModeEnabled));
+    SetWindowPos(hwnd,NULL,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|
+                 SWP_NOACTIVATE|SWP_FRAMECHANGED);
+  }
+}
+
+void DarkMode_ThemeControl(HWND hwnd,LPCWSTR theme)
+{
+  if (!hwnd)
+    return;
+  if (allowDarkModeForWindow)
+    allowDarkModeForWindow(hwnd,darkModeEnabled);
+  if (setWindowTheme)
+    setWindowTheme(hwnd,darkModeEnabled ? theme : NULL,
+                   darkModeEnabled && theme[0] == L'\0' ? L"" : NULL);
+}
+
+HBRUSH DarkMode_Brush(COLORREF color)
+{
+  // CTLCOLOR handlers return a brush that must outlive the paint.
+  static HBRUSH background, surface;
+  HBRUSH *brush = color == DARK_BACKGROUND ? &background : &surface;
+  if (!*brush)
+    *brush = CreateSolidBrush(color);
+  return *brush;
+}
+
+// UAH menu messages leave layout, keyboard navigation and popups with Windows.
+typedef struct {
+  HMENU menu;
+  HDC dc;
+  DWORD flags;
+} DarkMenuPaint;
+
+typedef struct {
+  DRAWITEMSTRUCT draw;
+  DarkMenuPaint bar;
+  int position;
+} DarkMenuItemPaint;
+
+BOOL DarkMode_DrawMenu(HWND hwnd,UINT msg,LPARAM param)
+{
+  if (!darkModeEnabled || !param)
+    return FALSE;
+
+  if (msg == WM_UAHDRAWMENU) {
+    const DarkMenuPaint *paint = (const DarkMenuPaint *)param;
+    MENUBARINFO info = { sizeof(info) };
+    RECT window;
+    if (!GetMenuBarInfo(hwnd,OBJID_MENU,0,&info) || !GetWindowRect(hwnd,&window))
+      return FALSE;
+    OffsetRect(&info.rcBar,-window.left,-window.top);
+    FillRect(paint->dc,&info.rcBar,DarkMode_Brush(DARK_BACKGROUND));
+    return TRUE;
+  }
+
+  if (msg == WM_UAHDRAWMENUITEM) {
+    const DarkMenuItemPaint *item = (const DarkMenuItemPaint *)param;
+    WCHAR text[128];
+    RECT rect = item->draw.rcItem;
+    HDC dc = item->bar.dc;
+    UINT state = item->draw.itemState;
+    UINT flags = DT_CENTER|DT_VCENTER|DT_SINGLELINE;
+    if (!GetMenuString(item->bar.menu,item->position,text,COUNTOF(text),MF_BYPOSITION))
+      return FALSE;
+    if (state & ODS_NOACCEL)
+      flags |= DT_HIDEPREFIX;
+
+    int saved = SaveDC(dc);
+    SetDCBrushColor(dc,(state & (ODS_HOTLIGHT|ODS_SELECTED)) ? DARK_HOT : DARK_BACKGROUND);
+    FillRect(dc,&rect,(HBRUSH)GetStockObject(DC_BRUSH));
+    SetBkMode(dc,TRANSPARENT);
+    SetTextColor(dc,(state & (ODS_DISABLED|ODS_GRAYED)) ? DARK_DISABLED_TEXT : DARK_TEXT);
+    DrawText(dc,text,-1,&rect,flags);
+    RestoreDC(dc,saved);
+    return TRUE;
+  }
+
+  return FALSE;
+}
+
+void DarkMode_DrawMenuBorder(HWND hwnd)
+{
+  MENUBARINFO info = { sizeof(info) };
+  RECT window;
+  POINT client = { 0, 0 };
+  if (!GetMenuBarInfo(hwnd,OBJID_MENU,0,&info) ||
+      !GetWindowRect(hwnd,&window) || !ClientToScreen(hwnd,&client))
+    return;
+
+  HDC dc = GetWindowDC(hwnd);
+  if (dc) {
+    RECT border = {
+      info.rcBar.left-window.left, client.y-window.top-1,
+      info.rcBar.right-window.left, client.y-window.top
+    };
+    FillRect(dc,&border,DarkMode_Brush(DARK_BACKGROUND));
+    ReleaseDC(hwnd,dc);
+  }
+}
+
+static BOOL CALLBACK DarkMode_DialogControl(HWND hwnd,LPARAM unused)
+{
+  WCHAR className[32];
+  GetClassName(hwnd,className,COUNTOF(className));
+  if (lstrcmpi(className,WC_LISTVIEW) == 0) {
+    DarkMode_ThemeControl(hwnd,L"Explorer");
+    ListView_SetBkColor(hwnd,darkModeEnabled ? DARK_BACKGROUND : GetSysColor(COLOR_WINDOW));
+    ListView_SetTextBkColor(hwnd,darkModeEnabled ? CLR_NONE : GetSysColor(COLOR_WINDOW));
+    ListView_SetTextColor(hwnd,darkModeEnabled ? DARK_TEXT : GetSysColor(COLOR_WINDOWTEXT));
+  }
+  else if (lstrcmpi(className,WC_TREEVIEW) == 0) {
+    DarkMode_ThemeControl(hwnd,L"Explorer");
+    TreeView_SetBkColor(hwnd,darkModeEnabled ? DARK_BACKGROUND : (COLORREF)-1);
+    TreeView_SetTextColor(hwnd,darkModeEnabled ? DARK_TEXT : (COLORREF)-1);
+  }
+  else if (lstrcmpi(className,WC_COMBOBOX) == 0) {
+    DarkMode_ThemeControl(hwnd,L"DarkMode_CFD");
+  }
+  else if (lstrcmpi(className,WC_BUTTON) == 0 || lstrcmpi(className,WC_EDIT) == 0 ||
+           lstrcmpi(className,WC_LISTBOX) == 0 || lstrcmpi(className,UPDOWN_CLASS) == 0 ||
+           lstrcmpi(className,WC_SCROLLBAR) == 0) {
+    DarkMode_ThemeControl(hwnd,L"DarkMode_Explorer");
+  }
+  return TRUE;
+}
+
+static const WCHAR themedDialogProcProperty[] = L"Notepad2.ThemedDialogProc";
+
+static void DarkMode_ApplyDialog(HWND hwnd)
+{
+  DarkMode_SetTitleBar(hwnd);
+  EnumChildWindows(hwnd,DarkMode_DialogControl,0);
+  RedrawWindow(hwnd,NULL,NULL,RDW_INVALIDATE|RDW_ERASE|RDW_ALLCHILDREN|RDW_FRAME);
+}
+
+typedef struct {
+  DLGPROC proc;
+  LPARAM param;
+} ThemedDialogInit;
+
+static INT_PTR CALLBACK ThemedDialogProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam)
+{
+  DLGPROC proc = (DLGPROC)GetProp(hwnd,themedDialogProcProperty);
+
+  if (msg == WM_INITDIALOG) {
+    const ThemedDialogInit *init = (const ThemedDialogInit *)lParam;
+    proc = init->proc;
+    SetProp(hwnd,themedDialogProcProperty,(HANDLE)proc);
+    INT_PTR result = proc(hwnd,msg,wParam,init->param);
+    if (darkModeEnabled && IsWindow(hwnd))
+      DarkMode_ApplyDialog(hwnd);
+    return result;
+  }
+
+  if (!proc)
+    return FALSE;
+
+  INT_PTR result = proc(hwnd,msg,wParam,lParam);
+  if (msg == WM_NCDESTROY)
+    RemoveProp(hwnd,themedDialogProcProperty);
+  if (!result && darkModeEnabled) {
+    switch (msg) {
+      case WM_CTLCOLORDLG:
+      case WM_CTLCOLORSTATIC:
+      case WM_CTLCOLORBTN:
+      case WM_CTLCOLORSCROLLBAR:
+      case WM_CTLCOLOREDIT:
+      case WM_CTLCOLORLISTBOX: {
+        HDC dc = (HDC)wParam;
+        COLORREF background = (msg == WM_CTLCOLOREDIT || msg == WM_CTLCOLORLISTBOX)
+          ? DARK_SURFACE : DARK_BACKGROUND;
+        SetTextColor(dc,IsWindowEnabled((HWND)lParam) ? DARK_TEXT : DARK_DISABLED_TEXT);
+        SetBkColor(dc,background);
+        return (INT_PTR)DarkMode_Brush(background);
+      }
+    }
+  }
+  return result;
+}
+
+static BOOL CALLBACK DarkMode_RefreshDialog(HWND hwnd,LPARAM unused)
+{
+  if (GetProp(hwnd,themedDialogProcProperty))
+    DarkMode_ApplyDialog(hwnd);
+  return TRUE;
+}
+
+void DarkMode_RefreshDialogs(void)
+{
+  EnumThreadWindows(GetCurrentThreadId(),DarkMode_RefreshDialog,0);
+}
+
 INT_PTR ThemedDialogBoxParam(
   HINSTANCE hInstance,
   LPCTSTR lpTemplate,
@@ -2021,7 +2294,10 @@ INT_PTR ThemedDialogBoxParam(
   DLGTEMPLATE *pDlgTemplate;
 
   pDlgTemplate = LoadThemedDialogTemplate(lpTemplate,hInstance);
-  ret = DialogBoxIndirectParam(hInstance,pDlgTemplate,hWndParent,lpDialogFunc,dwInitParam);
+  ThemedDialogInit init = { lpDialogFunc, dwInitParam };
+  ret = DialogBoxIndirectParam(hInstance,pDlgTemplate,hWndParent,
+    darkModeSupported ? ThemedDialogProc : lpDialogFunc,
+    darkModeSupported ? (LPARAM)&init : dwInitParam);
   if (pDlgTemplate)
     LocalFree(pDlgTemplate);
 
@@ -2039,7 +2315,10 @@ HWND CreateThemedDialogParam(
   DLGTEMPLATE *pDlgTemplate;
 
   pDlgTemplate = LoadThemedDialogTemplate(lpTemplate,hInstance);
-  hwnd = CreateDialogIndirectParam(hInstance,pDlgTemplate,hWndParent,lpDialogFunc,dwInitParam);
+  ThemedDialogInit init = { lpDialogFunc, dwInitParam };
+  hwnd = CreateDialogIndirectParam(hInstance,pDlgTemplate,hWndParent,
+    darkModeSupported ? ThemedDialogProc : lpDialogFunc,
+    darkModeSupported ? (LPARAM)&init : dwInitParam);
   if (pDlgTemplate)
     LocalFree(pDlgTemplate);
 
