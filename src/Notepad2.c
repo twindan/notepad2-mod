@@ -168,6 +168,15 @@ BOOL      bResetFileWatching;
 DWORD     dwFileCheckInverval;
 DWORD     dwAutoReloadTimeout;
 int       iEscFunction;
+
+// Keep these values in the same order as the GUID format menu command IDs.
+enum {
+  GUID_LOWER_BRACES,
+  GUID_UPPER_BRACES,
+  GUID_LOWER,
+  GUID_UPPER
+};
+static int iGuidFormat;
 BOOL      bAlwaysOnTop;
 BOOL      bMinimizeToTray;
 BOOL      bTransparentMode;
@@ -2405,6 +2414,8 @@ void MsgInitMenu(HWND hwnd,WPARAM wParam,LPARAM lParam)
   else
     i = IDM_VIEW_NOESCFUNC;
   CheckMenuRadioItem(hmenu,IDM_VIEW_NOESCFUNC,IDM_VIEW_ESCEXIT,i,MF_BYCOMMAND);
+  CheckMenuRadioItem(hmenu,IDM_VIEW_GUIDLOWERBRACES,IDM_VIEW_GUIDUPPER,
+                    IDM_VIEW_GUIDLOWERBRACES+iGuidFormat,MF_BYCOMMAND);
 
   i = lstrlen(szIniFile);
   CheckCmd(hmenu,IDM_VIEW_SAVESETTINGS,bSaveSettings && i);
@@ -3473,6 +3484,35 @@ LRESULT MsgCommand(HWND hwnd,WPARAM wParam,LPARAM lParam)
       break;
 
 
+    case IDM_EDIT_INSERT_GUID:
+      {
+        GUID guid;
+        WCHAR wszGuid[39]; // Braces, 36 GUID characters, and a terminator.
+        char mszGuid[COUNTOF(wszGuid)];
+        char *pszInsert = mszGuid;
+
+        if (FAILED(CoCreateGuid(&guid)) ||
+            !StringFromGUID2(&guid,wszGuid,COUNTOF(wszGuid)) ||
+            !WideCharToMultiByte(CP_UTF8,0,wszGuid,-1,mszGuid,COUNTOF(mszGuid),NULL,NULL)) {
+          MessageBeep(0);
+          break;
+        }
+
+        if (iGuidFormat == GUID_LOWER_BRACES || iGuidFormat == GUID_LOWER)
+          CharLowerA(mszGuid);
+        else
+          CharUpperA(mszGuid);
+
+        if (iGuidFormat == GUID_LOWER || iGuidFormat == GUID_UPPER) {
+          mszGuid[COUNTOF(mszGuid)-2] = '\0';
+          pszInsert++;
+        }
+
+        SendMessage(hwndEdit,SCI_REPLACESEL,0,(LPARAM)pszInsert);
+      }
+      break;
+
+
     case IDM_EDIT_INSERT_FILENAME:
     case IDM_EDIT_INSERT_PATHNAME:
       {
@@ -4414,6 +4454,14 @@ LRESULT MsgCommand(HWND hwnd,WPARAM wParam,LPARAM lParam)
 
     case IDM_VIEW_ESCEXIT:
       iEscFunction = 2;
+      break;
+
+
+    case IDM_VIEW_GUIDLOWERBRACES:
+    case IDM_VIEW_GUIDUPPERBRACES:
+    case IDM_VIEW_GUIDLOWER:
+    case IDM_VIEW_GUIDUPPER:
+      iGuidFormat = LOWORD(wParam) - IDM_VIEW_GUIDLOWERBRACES;
       break;
 
 
@@ -5811,6 +5859,10 @@ void LoadSettings()
   iEscFunction = IniSectionGetInt(pIniSection,L"EscFunction",0);
   iEscFunction = max(min(iEscFunction,2),0);
 
+  iGuidFormat = IniSectionGetInt(pIniSection,L"GUIDFormat",GUID_UPPER_BRACES);
+  if (iGuidFormat < GUID_LOWER_BRACES || iGuidFormat > GUID_UPPER)
+    iGuidFormat = GUID_UPPER_BRACES;
+
   bAlwaysOnTop = IniSectionGetInt(pIniSection,L"AlwaysOnTop",0);
   if (bAlwaysOnTop) bAlwaysOnTop = 1;
 
@@ -6021,6 +6073,7 @@ void SaveSettings(BOOL bSaveSettingsNow)
   IniSectionSetInt(pIniSection,L"FileWatchingMode",iFileWatchingMode);
   IniSectionSetInt(pIniSection,L"ResetFileWatching",bResetFileWatching);
   IniSectionSetInt(pIniSection,L"EscFunction",iEscFunction);
+  IniSectionSetInt(pIniSection,L"GUIDFormat",iGuidFormat);
   IniSectionSetInt(pIniSection,L"AlwaysOnTop",bAlwaysOnTop);
   IniSectionSetInt(pIniSection,L"MinimizeToTray",bMinimizeToTray);
   IniSectionSetInt(pIniSection,L"TransparentMode",bTransparentMode);

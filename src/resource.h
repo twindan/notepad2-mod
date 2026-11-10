@@ -302,6 +302,7 @@
 #define IDM_EDIT_SELTONEXT              40371
 #define IDM_EDIT_SELTOPREV              40372
 #define IDM_EDIT_COMPLETEWORD           40373
+#define IDM_EDIT_INSERT_GUID            40374
 #define IDM_VIEW_SCHEME                 40400
 #define IDM_VIEW_USE2NDDEFAULT          40401
 #define IDM_VIEW_SCHEMECONFIG           40402
@@ -356,6 +357,10 @@
 #define IDM_VIEW_MARKOCCURRENCES_CASE   40451
 #define IDM_VIEW_MARKOCCURRENCES_WORD   40452
 #define IDM_VIEW_AUTOCOMPLETEWORDS      40453
+#define IDM_VIEW_GUIDLOWERBRACES        40454
+#define IDM_VIEW_GUIDUPPERBRACES        40455
+#define IDM_VIEW_GUIDLOWER               40456
+#define IDM_VIEW_GUIDUPPER               40457
 #define IDM_HELP_ABOUT                  40500
 #define IDM_CMDLINE_HELP                40501
 #define IDM_TRAY_RESTORE                40600
