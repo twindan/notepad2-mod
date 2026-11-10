@@ -36,7 +36,7 @@
 
 ## Contributors:
 
-* Twindan (this version)
+* twindan (this version)
 * [Kai Liu](http://code.kliu.org/misc/notepad2/)
 * [RL Vision](http://www.rlvision.com/notepad2/about.asp)
 * Aleksandar Lekov
@@ -53,5 +53,6 @@
 * <kbd>Ctrl+Alt+F2</kbd>       Expand selection to next match.
 * <kbd>Ctrl+Alt+Shift+F2</kbd> Expand selection to previous match.
 * <kbd>Ctrl+Shift+Enter</kbd>  New line with toggled auto indent option.
+* <kbd>Ctrl+Shift+3</kbd>  Inseert a GUID.
 
 You can use MSVC 2026 to build Notepad2-mod.
