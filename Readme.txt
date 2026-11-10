@@ -23,17 +23,10 @@ The Notepad2 Source Code
 
 Rebuilding from the Source Code
 
-  Notepad2 4.2.25 is based on Scintilla 2.24 [1].
-
-  [1] http://www.scintilla.org
-
-  To be able to rebuild Notepad2, the source code of the Scintilla
-  editing component has to be unzipped to the "scintilla" subdirectory
-  of the Notepad2 source code directory.
-
-  Many of the Scintilla lexing modules are not used by Notepad2. Run
-  LinkLex.js to adapt the list (in "scintilla/src/Catalogue.cxx") and
-  make linking work properly.
+  This fork bundles Scintilla 5.6.9 and Lexilla 5.5.5 in the
+  "scintilla" and "lexilla" directories. Build "build/Notepad2.sln"
+  with the Visual Studio 2026 C++ toolset for Win32 or x64. The Win32
+  build no longer targets Windows XP.
 
 
 Creating a Compact Executable Program File
@@ -55,11 +48,9 @@ How to add or modify Syntax Schemes
 
   Add your own lexer data structs to the global pLexArray (Styles.c),
   then adjust NUMLEXERS (Styles.h) to the new total number of syntax
-  schemes. Include the "scintilla/lexers/Lex*.cxx" file required for
-  your language into your project. Ensure the new module is initialized
-  (in "scintilla/src/Catalogue.cxx"), either by manually uncommenting
-  the corresponding LINK_LEXER() macro call, or by updating and
-  re-running LinkLex.js.
+  schemes. The bundled lexers are in "lexilla/lexers". Lexilla creates
+  the lexer for each scheme, with a separate factory for the custom
+  AutoHotkey lexer.
 
 
 Copyright

@@ -26,7 +26,6 @@
 #include <shlwapi.h>
 #include <commdlg.h>
 #include <string.h>
-#include "platform.h"
 #include "scintilla.h"
 #include "scilexer.h"
 extern "C" {

@@ -30,7 +30,8 @@
 #include <string.h>
 #include <time.h>
 #include "scintilla.h"
-#include "scilexer.h"
+#include "SciLexer.h"
+#include "LexAHK.h"
 #include "notepad2.h"
 #include "edit.h"
 #include "styles.h"
@@ -270,7 +271,8 @@ BOOL      fIsElevated = FALSE;
 WCHAR     wchWndClass[16] = WC_NOTEPAD2;
 
 HINSTANCE g_hInstance;
-HANDLE    g_hScintilla;
+sptr_t      g_hScintilla;
+SciFnDirect g_fnScintilla;
 UINT16    g_uWinVer;
 WCHAR     g_wchAppUserModelID[32] = L"";
 WCHAR     g_wchWorkingDirectory[MAX_PATH] = L"";

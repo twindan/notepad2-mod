@@ -19,10 +19,12 @@
 //  g_hScintilla
 //
 //
-extern HANDLE g_hScintilla;
+extern sptr_t g_hScintilla;
+extern SciFnDirect g_fnScintilla;
 
 __forceinline void InitScintillaHandle(HWND hwnd) {
-  g_hScintilla = (HANDLE)SendMessage(hwnd, SCI_GETDIRECTPOINTER, 0, 0);
+  g_hScintilla = SendMessage(hwnd, SCI_GETDIRECTPOINTER, 0, 0);
+  g_fnScintilla = (SciFnDirect)SendMessage(hwnd, SCI_GETDIRECTFUNCTION, 0, 0);
 }
 
 
@@ -31,8 +33,7 @@ __forceinline void InitScintillaHandle(HWND hwnd) {
 //  SciCall()
 //
 //
-LRESULT WINAPI Scintilla_DirectFunction(HANDLE, UINT, WPARAM, LPARAM);
-#define SciCall(m, w, l) Scintilla_DirectFunction(g_hScintilla, m, w, l)
+#define SciCall(m, w, l) g_fnScintilla(g_hScintilla, m, w, l)
 
 
 //=============================================================================
@@ -80,7 +81,7 @@ DeclareSciCallV2(SetSel, SETSEL, int, anchorPos, int, currentPos);
 DeclareSciCallV1(GotoPos, GOTOPOS, int, position);
 DeclareSciCallV1(GotoLine, GOTOLINE, int, line);
 DeclareSciCallR0(GetCurrentPos, GETCURRENTPOS, int);
-DeclareSciCallR1(LineFromPosition, LINEFROMPOSITION, int, int, position);
+DeclareSciCallR1(LineFromPosition, LINEFROMPOSITION, int, Sci_Position, position);
 
 
 //=============================================================================

@@ -4,146 +4,19 @@
     <Filter Include="include">
       <UniqueIdentifier>{b78c6486-26fc-4890-89c0-f7f3e301b79c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="lexers">
-      <UniqueIdentifier>{6b8793d0-aa9c-432f-aa65-b763bc23ae40}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="lexlib">
-      <UniqueIdentifier>{b4579e25-25b5-4f0d-8dab-c34ed9f53913}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src">
       <UniqueIdentifier>{9dbbd18e-d068-478e-82f3-5b03317a670d}</UniqueIdentifier>
     </Filter>
     <Filter Include="win32">
       <UniqueIdentifier>{afe7e35e-cd81-406c-a770-df29d2b3fc95}</UniqueIdentifier>
     </Filter>
+    <Filter Include="lexilla" />
+    <Filter Include="lexilla\include" />
+    <Filter Include="lexilla\lexers" />
+    <Filter Include="lexilla\lexlib" />
+    <Filter Include="lexilla\src" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="lexers\LexAHK.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexAsm.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexAU3.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexAVS.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexBash.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexBatch.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexCmake.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexCoffeeScript.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexConf.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexCPP.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexCSS.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexDiff.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexErrorList.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexHTML.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexInno.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexLaTeX.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexLua.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexMake.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexMarkdown.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexNsis.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexNull.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexPascal.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexPerl.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexPowerShell.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexProps.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexPython.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexRuby.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexSQL.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexTCL.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexVB.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexYAML.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexers\LexVHDL.cxx">
-      <Filter>lexers</Filter>
-    </ClCompile>
-    <ClCompile Include="lexlib\Accessor.cxx">
-      <Filter>lexlib</Filter>
-    </ClCompile>
-    <ClCompile Include="lexlib\CharacterCategory.cxx">
-      <Filter>lexlib</Filter>
-    </ClCompile>
-    <ClCompile Include="lexlib\CharacterSet.cxx">
-      <Filter>lexlib</Filter>
-    </ClCompile>
-    <ClCompile Include="lexlib\LexerBase.cxx">
-      <Filter>lexlib</Filter>
-    </ClCompile>
-    <ClCompile Include="lexlib\LexerModule.cxx">
-      <Filter>lexlib</Filter>
-    </ClCompile>
-    <ClCompile Include="lexlib\LexerNoExceptions.cxx">
-      <Filter>lexlib</Filter>
-    </ClCompile>
-    <ClCompile Include="lexlib\LexerSimple.cxx">
-      <Filter>lexlib</Filter>
-    </ClCompile>
-    <ClCompile Include="lexlib\PropSetSimple.cxx">
-      <Filter>lexlib</Filter>
-    </ClCompile>
-    <ClCompile Include="lexlib\StyleContext.cxx">
-      <Filter>lexlib</Filter>
-    </ClCompile>
-    <ClCompile Include="lexlib\WordList.cxx">
-      <Filter>lexlib</Filter>
-    </ClCompile>
     <ClCompile Include="src\AutoComplete.cxx">
       <Filter>src</Filter>
     </ClCompile>
@@ -156,16 +29,25 @@
     <ClCompile Include="src\CaseFolder.cxx">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\Catalogue.cxx">
+    <ClCompile Include="src\CellBuffer.cxx">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\CellBuffer.cxx">
+    <ClCompile Include="src\ChangeHistory.cxx">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CharacterCategoryMap.cxx">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\CharacterType.cxx">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\CharClassify.cxx">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\ContractionState.cxx">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\DBCS.cxx">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Decoration.cxx">
@@ -183,7 +65,7 @@
     <ClCompile Include="src\EditView.cxx">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\ExternalLexer.cxx">
+    <ClCompile Include="src\Geometry.cxx">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\Indicator.cxx">
@@ -219,7 +101,13 @@
     <ClCompile Include="src\Style.cxx">
       <Filter>src</Filter>
     </ClCompile>
+    <ClCompile Include="src\UndoHistory.cxx">
+      <Filter>src</Filter>
+    </ClCompile>
     <ClCompile Include="src\UniConversion.cxx">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\UniqueString.cxx">
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\ViewStyle.cxx">
@@ -234,67 +122,463 @@
     <ClCompile Include="win32\PlatWin.cxx">
       <Filter>win32</Filter>
     </ClCompile>
+    <ClCompile Include="win32\ListBox.cxx">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\SurfaceGDI.cxx">
+      <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="win32\SurfaceD2D.cxx">
+      <Filter>win32</Filter>
+    </ClCompile>
     <ClCompile Include="win32\ScintillaWin.cxx">
       <Filter>win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexA68k.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexAbaqus.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexAda.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexAHK.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexAPDL.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexAsciidoc.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexAsm.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexAsn1.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexASY.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexAU3.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexAVE.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexAVS.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexBaan.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexBash.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexBasic.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexBatch.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexBibTeX.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexBullant.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexCaml.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexCIL.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexCLW.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexCmake.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexCOBOL.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexCoffeeScript.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexConf.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexCPP.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexCrontab.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexCsound.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexCSS.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexD.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexDart.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexDataflex.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexDiff.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexDMAP.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexDMIS.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexECL.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexEDIFACT.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexEiffel.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexErlang.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexErrorList.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexEScript.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexEscSeq.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexFlagship.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexForth.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexFortran.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexFSharp.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexGAP.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexGDScript.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexGui4Cli.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexHaskell.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexHex.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexHollywood.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexHTML.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexIndent.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexInno.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexJSON.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexJulia.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexKix.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexKVIrc.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexLaTeX.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexLisp.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexLout.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexLua.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexMagik.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexMake.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexMarkdown.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexMatlab.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexMaxima.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexMetapost.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexMMIXAL.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexModula.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexMPT.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexMSSQL.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexMySQL.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexNim.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexNimrod.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexNix.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexNsis.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexNull.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexOpal.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexOScript.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexPascal.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexPB.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexPerl.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexPLM.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexPO.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexPOV.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexPowerPro.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexPowerShell.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexProgress.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexProps.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexPS.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexPython.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexR.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexRaku.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexRebol.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexRegistry.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexRuby.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexRust.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexSAS.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexScriptol.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexSINEX.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexSmalltalk.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexSML.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexSorcus.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexSpecman.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexSpice.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexSQL.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexStata.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexSTTXT.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexTACL.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexTADS3.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexTAL.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexTCL.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexTCMD.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexTeX.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexTOML.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexTroff.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexTxt2tags.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexVB.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexVerilog.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexVHDL.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexVisualProlog.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexX12.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexYAML.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexers\LexZig.cxx">
+      <Filter>lexilla\lexers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexlib\Accessor.cxx">
+      <Filter>lexilla\lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexlib\CharacterCategory.cxx">
+      <Filter>lexilla\lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexlib\CharacterSet.cxx">
+      <Filter>lexilla\lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexlib\DefaultLexer.cxx">
+      <Filter>lexilla\lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexlib\InList.cxx">
+      <Filter>lexilla\lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexlib\LexAccessor.cxx">
+      <Filter>lexilla\lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexlib\LexerBase.cxx">
+      <Filter>lexilla\lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexlib\LexerModule.cxx">
+      <Filter>lexilla\lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexlib\LexerSimple.cxx">
+      <Filter>lexilla\lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexlib\PropSetSimple.cxx">
+      <Filter>lexilla\lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexlib\StyleContext.cxx">
+      <Filter>lexilla\lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\lexlib\WordList.cxx">
+      <Filter>lexilla\lexlib</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lexilla\src\Lexilla.cxx">
+      <Filter>lexilla\src</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\ILexer.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\Platform.h">
+    <ClInclude Include="include\ILoader.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="include\SciLexer.h">
+    <ClInclude Include="include\Sci_Position.h">
       <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="include\Scintilla.h">
       <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="lexlib\Accessor.h">
-      <Filter>lexlib</Filter>
+    <ClInclude Include="include\ScintillaCall.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="lexlib\CharacterCategory.h">
-      <Filter>lexlib</Filter>
+    <ClInclude Include="include\ScintillaMessages.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="lexlib\CharacterSet.h">
-      <Filter>lexlib</Filter>
+    <ClInclude Include="include\ScintillaStructures.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="lexlib\LexAccessor.h">
-      <Filter>lexlib</Filter>
+    <ClInclude Include="include\ScintillaTypes.h">
+      <Filter>include</Filter>
     </ClInclude>
-    <ClInclude Include="lexlib\LexerBase.h">
-      <Filter>lexlib</Filter>
-    </ClInclude>
-    <ClInclude Include="lexlib\LexerModule.h">
-      <Filter>lexlib</Filter>
-    </ClInclude>
-    <ClInclude Include="lexlib\LexerNoExceptions.h">
-      <Filter>lexlib</Filter>
-    </ClInclude>
-    <ClInclude Include="lexlib\LexerSimple.h">
-      <Filter>lexlib</Filter>
-    </ClInclude>
-    <ClInclude Include="lexlib\OptionSet.h">
-      <Filter>lexlib</Filter>
-    </ClInclude>
-    <ClInclude Include="lexlib\PropSetSimple.h">
-      <Filter>lexlib</Filter>
-    </ClInclude>
-    <ClInclude Include="lexlib\SparseState.h">
-      <Filter>lexlib</Filter>
-    </ClInclude>
-    <ClInclude Include="lexlib\StringCopy.h">
-      <Filter>lexlib</Filter>
-    </ClInclude>
-    <ClInclude Include="lexlib\StyleContext.h">
-      <Filter>lexlib</Filter>
-    </ClInclude>
-    <ClInclude Include="lexlib\SubStyles.h">
-      <Filter>lexlib</Filter>
-    </ClInclude>
-    <ClInclude Include="lexlib\WordList.h">
-      <Filter>lexlib</Filter>
+    <ClInclude Include="include\ScintillaWidget.h">
+      <Filter>include</Filter>
     </ClInclude>
     <ClInclude Include="src\AutoComplete.h">
       <Filter>src</Filter>
@@ -308,16 +592,28 @@
     <ClInclude Include="src\CaseFolder.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\Catalogue.h">
+    <ClInclude Include="src\CellBuffer.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\CellBuffer.h">
+    <ClInclude Include="src\ChangeHistory.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CharacterCategoryMap.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\CharacterType.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\CharClassify.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\ContractionState.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\DBCS.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\Debugging.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Decoration.h">
@@ -335,10 +631,10 @@
     <ClInclude Include="src\EditView.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\ExternalLexer.h">
+    <ClInclude Include="src\ElapsedPeriod.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\FontQuality.h">
+    <ClInclude Include="src\Geometry.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Indicator.h">
@@ -359,6 +655,9 @@
     <ClInclude Include="src\PerLine.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\Platform.h">
+      <Filter>src</Filter>
+    </ClInclude>
     <ClInclude Include="src\Position.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -371,10 +670,16 @@
     <ClInclude Include="src\RunStyles.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="src\RunThreads.h">
+      <Filter>src</Filter>
+    </ClInclude>
     <ClInclude Include="src\ScintillaBase.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\Selection.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\SparseVector.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\SplitVector.h">
@@ -383,10 +688,13 @@
     <ClInclude Include="src\Style.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\UnicodeFromUTF8.h">
+    <ClInclude Include="src\UndoHistory.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\UniConversion.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\UniqueString.h">
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\ViewStyle.h">
@@ -395,9 +703,86 @@
     <ClInclude Include="src\XPM.h">
       <Filter>src</Filter>
     </ClInclude>
+    <ClInclude Include="win32\HanjaDic.h">
+      <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="win32\ListBox.h">
+      <Filter>win32</Filter>
+    </ClInclude>
     <ClInclude Include="win32\PlatWin.h">
       <Filter>win32</Filter>
     </ClInclude>
-    <ClInclude Include="include\Sci_Position.h" />
+    <ClInclude Include="win32\ScintillaWin.h">
+      <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="win32\SurfaceD2D.h">
+      <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="win32\SurfaceGDI.h">
+      <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="win32\WinTypes.h">
+      <Filter>win32</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\include\LexAHK.h">
+      <Filter>lexilla\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\include\Lexilla.h">
+      <Filter>lexilla\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\include\SciLexer.h">
+      <Filter>lexilla\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\lexlib\Accessor.h">
+      <Filter>lexilla\lexlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\lexlib\CatalogueModules.h">
+      <Filter>lexilla\lexlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\lexlib\CharacterCategory.h">
+      <Filter>lexilla\lexlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\lexlib\CharacterSet.h">
+      <Filter>lexilla\lexlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\lexlib\DefaultLexer.h">
+      <Filter>lexilla\lexlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\lexlib\InList.h">
+      <Filter>lexilla\lexlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\lexlib\LexAccessor.h">
+      <Filter>lexilla\lexlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\lexlib\LexerBase.h">
+      <Filter>lexilla\lexlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\lexlib\LexerModule.h">
+      <Filter>lexilla\lexlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\lexlib\LexerSimple.h">
+      <Filter>lexilla\lexlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\lexlib\OptionSet.h">
+      <Filter>lexilla\lexlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\lexlib\PropSetSimple.h">
+      <Filter>lexilla\lexlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\lexlib\SparseState.h">
+      <Filter>lexilla\lexlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\lexlib\StringCopy.h">
+      <Filter>lexilla\lexlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\lexlib\StyleContext.h">
+      <Filter>lexilla\lexlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\lexlib\SubStyles.h">
+      <Filter>lexilla\lexlib</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lexilla\lexlib\WordList.h">
+      <Filter>lexilla\lexlib</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
