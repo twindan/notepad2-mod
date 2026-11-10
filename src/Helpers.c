@@ -1655,7 +1655,7 @@ BOOL MRU_Add(LPMRULIST pmru,LPCWSTR pszNew) {
 BOOL MRU_AddFile(LPMRULIST pmru,LPCWSTR pszFile,BOOL bRelativePath,BOOL bUnexpandMyDocs) {
 
   int i;
-  for (i = 0; i < pmru->iSize; i++) {
+  for (i = 0; i < pmru->iSize && pmru->pszItems[i]; i++) {
     if (lstrcmpi(pmru->pszItems[i],pszFile) == 0) {
       LocalFree(pmru->pszItems[i]);
       break;
