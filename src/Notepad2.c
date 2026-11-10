@@ -7817,7 +7817,7 @@ BOOL RelaunchElevated() {
       sei.lpFile = lpArg1;
       sei.lpParameters = lpArg2;
       sei.lpDirectory = g_wchWorkingDirectory;
-      sei.nShow = si.wShowWindow;
+      sei.nShow = (si.dwFlags & STARTF_USESHOWWINDOW) ? si.wShowWindow : SW_SHOWNORMAL;
 
       ShellExecuteEx(&sei);
     }
