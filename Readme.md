@@ -53,6 +53,6 @@
 * <kbd>Ctrl+Alt+F2</kbd>       Expand selection to next match.
 * <kbd>Ctrl+Alt+Shift+F2</kbd> Expand selection to previous match.
 * <kbd>Ctrl+Shift+Enter</kbd>  New line with toggled auto indent option.
-* <kbd>Ctrl+Shift+3</kbd>  Inseert a GUID.
+* <kbd>Ctrl+Shift+3</kbd>  Insert a GUID.
 
 You can use MSVC 2026 to build Notepad2-mod.
