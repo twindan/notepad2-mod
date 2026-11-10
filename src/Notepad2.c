@@ -7227,13 +7227,6 @@ BOOL FileSave(BOOL bSaveAlways,BOOL bAsk,BOOL bSaveAs,BOOL bSaveCopy)
     int cchText = (int)SendMessage(hwndEdit,SCI_GETLENGTH,0,0);
     if (cchText == 0)
       bIsEmptyNewFile = TRUE;
-    else if (cchText < 1023) {
-      char tchText[2048];
-      SendMessage(hwndEdit,SCI_GETTEXT,(WPARAM)2047,(LPARAM)tchText);
-      StrTrimA(tchText," \t\n\r");
-      if (lstrlenA(tchText) == 0)
-        bIsEmptyNewFile = TRUE;
-    }
   }
 
   if (!bSaveAlways && (!bModified && iEncoding == iOriginalEncoding || bIsEmptyNewFile) && !bSaveAs)
