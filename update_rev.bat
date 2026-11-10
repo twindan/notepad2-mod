@@ -1,32 +1,12 @@
 @ECHO OFF
 SETLOCAL
 
-PUSHD %~dp0
+PUSHD "%~dp0" || EXIT /B 1
 
-IF EXIST "build.user.bat" (CALL "build.user.bat")
+IF EXIST "build.user.bat" CALL "build.user.bat"
 
-SET PATH=%MSYS%\bin;%PATH%
+python.exe "%~dp0version.py"
+SET "VERSION_EXIT_CODE=%ERRORLEVEL%"
 
-FOR %%G IN (bash.exe) DO (SET FOUND=%%~$PATH:G)
-IF NOT DEFINED FOUND GOTO MissingVar
-
-bash.exe ./version.sh
-
-
-:END
 POPD
-ENDLOCAL
-EXIT /B
-
-
-:MissingVar
-COLOR 0C
-TITLE ERROR
-ECHO MSYS (bash.exe) wasn't found. Create a file build.user.bat and set the variable there.
-ECHO.
-ECHO SET "MSYS=H:\progs\MSYS"
-ECHO. & ECHO.
-ECHO Press any key to exit...
-PAUSE >NUL
-ENDLOCAL
-EXIT /B
+ENDLOCAL & EXIT /B %VERSION_EXIT_CODE%
