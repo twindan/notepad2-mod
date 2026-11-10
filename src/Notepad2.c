@@ -1795,19 +1795,28 @@ static void PaintDarkStatusBar(HWND hwnd,HDC dc)
 
   BOOL simple = (BOOL)SendMessage(hwnd,SB_ISSIMPLE,0,0);
   int parts = simple ? 1 : (int)SendMessage(hwnd,SB_GETPARTS,0,0);
+  // SB_GETTEXT takes no buffer size and can return up to 65535 characters.
+  enum { statusTextCapacity = 65535 + 1 };
+  WCHAR *text = LocalAlloc(LMEM_FIXED,statusTextCapacity*sizeof(*text));
+  if (!text) {
+    RestoreDC(dc,saved);
+    return;
+  }
   for (int part = 0; part < parts; ++part) {
-    UINT index = simple ? STATUS_HELP : part;
     RECT rect = client;
-    if (!simple && !SendMessage(hwnd,SB_GETRECT,index,(LPARAM)&rect))
-      continue;
+    text[0] = L'\0';
+    if (simple) {
+      SendMessage(hwnd,WM_GETTEXT,statusTextCapacity,(LPARAM)text);
+    }
+    else {
+      if (!SendMessage(hwnd,SB_GETRECT,part,(LPARAM)&rect))
+        continue;
 
-    LRESULT length = SendMessage(hwnd,SB_GETTEXTLENGTH,index,0);
-    if (HIWORD(length) & SBT_OWNERDRAW)
-      continue;
-    WCHAR *text = LocalAlloc(LMEM_FIXED,(LOWORD(length)+1)*sizeof(WCHAR));
-    if (!text)
-      continue;
-    SendMessage(hwnd,SB_GETTEXT,index,(LPARAM)text);
+      LRESULT length = SendMessage(hwnd,SB_GETTEXTLENGTH,part,0);
+      if (HIWORD(length) & SBT_OWNERDRAW)
+        continue;
+      SendMessage(hwnd,SB_GETTEXT,part,(LPARAM)text);
+    }
     if (part > 0) {
       RECT divider = { rect.left-1, rect.top+3, rect.left, rect.bottom-3 };
       FillRect(dc,&divider,(HBRUSH)GetStockObject(DC_BRUSH));
@@ -1815,8 +1824,8 @@ static void PaintDarkStatusBar(HWND hwnd,HDC dc)
     rect.left += 4;
     rect.right -= 3;
     DrawText(dc,text,-1,&rect,DT_SINGLELINE|DT_VCENTER|DT_NOPREFIX|DT_END_ELLIPSIS);
-    LocalFree(text);
   }
+  LocalFree(text);
   RestoreDC(dc,saved);
 }
 
