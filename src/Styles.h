@@ -49,7 +49,7 @@ typedef struct _editlexer
   WCHAR* pszDefExt;
   WCHAR  szExtensions[128];
   PKEYWORDLIST pKeyWords;
-  EDITSTYLE    Styles[];
+  PEDITSTYLE   Styles;
 
 } EDITLEXER, *PEDITLEXER;
 
