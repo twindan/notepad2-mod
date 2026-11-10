@@ -18,6 +18,7 @@
 
 * Dark mode support
 * Latest version of Scintilla
+* Added ability to insert GUID
 * Minor bug fixes
 
 ## Supported Operating Systems:
