@@ -57,10 +57,14 @@
 
 // Compiler specific
 #if defined(_MSC_VER)
-    #if _MSC_VER == 1910
-        #if (_MSC_FULL_VER >= 191025017 && _MSC_FULL_VER <= 191025019)
-            #define VERSION_COMPILER    L"MSVC 2017"
-        #endif
+    #if _MSC_VER >= 1950
+        #define VERSION_COMPILER        L"MSVC 2026"
+    #elif _MSC_VER >= 1930 && _MSC_VER <= 1944
+        #define VERSION_COMPILER        L"MSVC 2022"
+    #elif _MSC_VER >= 1920 && _MSC_VER <= 1929
+        #define VERSION_COMPILER        L"MSVC 2019"
+    #elif _MSC_VER >= 1910 && _MSC_VER <= 1916
+        #define VERSION_COMPILER        L"MSVC 2017"
     #else
         #define VERSION_COMPILER        L"MSVC (version unknown)"
     #endif
