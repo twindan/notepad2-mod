@@ -4,6 +4,7 @@
 *.sdf
 *.suo
 *.user
+.localenv.ps1
 /bin
 /build.user.bat
 /build/*.db
