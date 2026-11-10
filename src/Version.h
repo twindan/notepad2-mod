@@ -31,7 +31,7 @@
 
 #define VERSION_MAJOR   4
 #define VERSION_MINOR   2
-#define VERSION_BUILD   25
+#define VERSION_BUILD   26
 
 #define MY_APPNAME                   L"Notepad2-mod"
 #define VERSION_FILEVERSION_NUM      VERSION_MAJOR,VERSION_MINOR,VERSION_BUILD,VERSION_REV
