@@ -241,15 +241,6 @@ INT_PTR CALLBACK AboutDlgProc(HWND hwnd,UINT umsg,WPARAM wParam,LPARAM lParam)
           SetDlgItemText(hwnd,IDC_WEBPAGE,wch);
         }
 
-        if (GetDlgItem(hwnd,IDC_EMAIL) == NULL) {
-          SetDlgItemText(hwnd,IDC_EMAIL2,VERSION_EMAILDISPLAY);
-          ShowWindow(GetDlgItem(hwnd,IDC_EMAIL2),SW_SHOWNORMAL);
-        }
-        else {
-          wsprintf(wch,L"<A>%s</A>",VERSION_EMAILDISPLAY);
-          SetDlgItemText(hwnd,IDC_EMAIL,wch);
-        }
-
         if (GetDlgItem(hwnd,IDC_MOD_PAGE) == NULL) {
           SetDlgItemText(hwnd,IDC_MOD_PAGE,VERSION_MODPAGEDISPLAY);
           ShowWindow(GetDlgItem(hwnd,IDC_MOD_PAGE2),SW_SHOWNORMAL);
