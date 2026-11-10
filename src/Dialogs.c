@@ -259,6 +259,16 @@ INT_PTR CALLBACK AboutDlgProc(HWND hwnd,UINT umsg,WPARAM wParam,LPARAM lParam)
           SetDlgItemText(hwnd,IDC_MOD_PAGE,wch);
         }
 
+		if (GetDlgItem(hwnd, IDC_FORK_SITE) == NULL) {
+			SetDlgItemText(hwnd, IDC_FORK_SITE, VERSION_FORKPAGEDISPLAY);
+			ShowWindow(GetDlgItem(hwnd, IDC_FORK_SITE2), SW_SHOWNORMAL);
+		}
+        else {
+            wsprintf(wch, L"<A>%s</A>", VERSION_FORKPAGEDISPLAY);
+            SetDlgItemText(hwnd, IDC_FORK_SITE, wch);
+        }
+
+
         CenterDlgInParent(hwnd);
       }
       return TRUE;

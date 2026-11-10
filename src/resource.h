@@ -2,7 +2,9 @@
 // Microsoft Visual C++ generated include file.
 // Used by Notepad2.rc
 //
-#define IDC_STATIC                      -1
+#define VERSION_MINOR                   2
+#define VERSION_MAJOR                   4
+#define VERSION_BUILD                   26
 #define IDR_MAINWND                     100
 #define IDC_FINDTEXT                    100
 #define IDC_LINENUM                     100
@@ -34,7 +36,6 @@
 #define IDC_RESIZEGRIP4                 101
 #define IDC_NOUNICODEDETECTION          101
 #define IDC_COPYRIGHT                   101
-#define IDC_MOD_PAGE                    112
 #define IDC_STYLEEDIT                   102
 #define IDC_FINDCASE                    102
 #define IDC_OPENWITHDESCR               102
@@ -74,9 +75,11 @@
 #define IDD_FAVORITES                   107
 #define IDC_NOWRAP                      107
 #define IDC_STYLEDEFAULT                107
+#define IDC_FORK_SITE                   107
 #define IDD_ADDTOFAV                    108
 #define IDC_PREVSTYLE                   108
 #define IDC_FINDCLOSE                   108
+#define IDC_FORK_SITE2                  108
 #define IDD_FILEMRU                     109
 #define IDC_FINDPREV                    109
 #define IDC_NEXTSTYLE                   109
@@ -84,6 +87,7 @@
 #define IDC_IMPORT                      110
 #define IDD_MODIFYLINES                 111
 #define IDC_EXPORT                      111
+#define IDC_MOD_PAGE                    112
 #define IDC_REPLACE                     112
 #define IDC_TITLE                       112
 #define IDD_ALIGN                       112
@@ -425,9 +429,10 @@
 #define IDS_SETTINGSNOTSAVED            50039
 #define IDS_EXPORT_FAIL                 50040
 #define IDS_CMDLINEHELP                 60000
+#define IDC_STATIC                      -1
 
 // Next default values for new objects
-//
+// 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                     1
