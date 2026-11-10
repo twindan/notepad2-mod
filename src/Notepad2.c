@@ -273,7 +273,6 @@ WCHAR     wchWndClass[16] = WC_NOTEPAD2;
 HINSTANCE g_hInstance;
 sptr_t      g_hScintilla;
 SciFnDirect g_fnScintilla;
-UINT16    g_uWinVer;
 WCHAR     g_wchAppUserModelID[32] = L"";
 WCHAR     g_wchWorkingDirectory[MAX_PATH] = L"";
 
@@ -581,10 +580,6 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInst,LPSTR lpCmdLine,int n
 
   // Set global variable g_hInstance
   g_hInstance = hInstance;
-
-  // Set the Windows version global variable
-  g_uWinVer = LOWORD(GetVersion());
-  g_uWinVer = MAKEWORD(HIBYTE(g_uWinVer),LOBYTE(g_uWinVer));
 
   // Don't keep working directory locked
   GetCurrentDirectory(COUNTOF(g_wchWorkingDirectory),g_wchWorkingDirectory);

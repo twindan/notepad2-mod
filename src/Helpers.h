@@ -20,8 +20,9 @@
 
 
 
+#include <VersionHelpers.h>
+
 extern HINSTANCE g_hInstance;
-extern UINT16 g_uWinVer;
 
 
 #define COUNTOF(ar) (sizeof(ar)/sizeof(ar[0]))
@@ -66,10 +67,10 @@ __inline void EndWaitCursor()
 }
 
 
-#define Is2k()    (g_uWinVer >= 0x0500)
-#define IsXP()    (g_uWinVer >= 0x0501)
-#define IsVista() (g_uWinVer >= 0x0600)
-#define IsW7()    (g_uWinVer >= 0x0601)
+#define Is2k()    IsWindowsVersionOrGreater(5, 0, 0)
+#define IsXP()    IsWindowsXPOrGreater()
+#define IsVista() IsWindowsVistaOrGreater()
+#define IsW7()    IsWindows7OrGreater()
 
 
 BOOL PrivateIsAppThemed();
