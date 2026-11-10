@@ -2247,8 +2247,8 @@ void MsgInitMenu(HWND hwnd,WPARAM wParam,LPARAM lParam)
   i  = (int)SendMessage(hwndEdit,SCI_GETSELECTIONEND,0,0) - (int)SendMessage(hwndEdit,SCI_GETSELECTIONSTART,0,0);
   i2 = (int)SendMessage(hwndEdit,SCI_CANPASTE,0,0);
 
-  EnableCmd(hmenu,IDM_EDIT_CUT,i /*&& !bReadOnly*/);
-  EnableCmd(hmenu,IDM_EDIT_COPY,i /*&& !bReadOnly*/);
+  EnableCmd(hmenu,IDM_EDIT_CUT,SendMessage(hwndEdit,SCI_GETLENGTH,0,0));
+  EnableCmd(hmenu,IDM_EDIT_COPY,SendMessage(hwndEdit,SCI_GETLENGTH,0,0));
   EnableCmd(hmenu,IDM_EDIT_COPYALL,SendMessage(hwndEdit,SCI_GETLENGTH,0,0) /*&& !bReadOnly*/);
   EnableCmd(hmenu,IDM_EDIT_COPYADD,i /*&& !bReadOnly*/);
   EnableCmd(hmenu,IDM_EDIT_PASTE,i2 /*&& !bReadOnly*/);
@@ -2986,14 +2986,21 @@ LRESULT MsgCommand(HWND hwnd,WPARAM wParam,LPARAM lParam)
     case IDM_EDIT_CUT:
       if (flagPasteBoard)
         bLastCopyFromMe = TRUE;
-      SendMessage(hwndEdit,SCI_CUT,0,0);
+      if (SendMessage(hwndEdit,SCI_GETSELECTIONEMPTY,0,0)) {
+        if (!SendMessage(hwndEdit,SCI_GETREADONLY,0,0) && SendMessage(hwndEdit,SCI_GETLENGTH,0,0)) {
+          SendMessage(hwndEdit,SCI_COPYALLOWLINE,0,0);
+          SendMessage(hwndEdit,SCI_LINEDELETE,0,0);
+        }
+      }
+      else
+        SendMessage(hwndEdit,SCI_CUT,0,0);
       break;
 
 
     case IDM_EDIT_COPY:
       if (flagPasteBoard)
         bLastCopyFromMe = TRUE;
-      SendMessage(hwndEdit,SCI_COPY,0,0);
+      SendMessage(hwndEdit,SCI_COPYALLOWLINE,0,0);
       UpdateToolbar();
       break;
 
