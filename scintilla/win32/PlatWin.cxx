@@ -452,8 +452,9 @@ public:
 			return false;
 		}
 
+		// Avoid creating a hardware device just to draw the margin cursor.
 		const D2D1_RENDER_TARGET_PROPERTIES drtp = D2D1::RenderTargetProperties(
-			D2D1_RENDER_TARGET_TYPE_DEFAULT,
+			D2D1_RENDER_TARGET_TYPE_SOFTWARE,
 			{ DXGI_FORMAT_B8G8R8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED });
 
 		DCRenderTarget pTarget;
