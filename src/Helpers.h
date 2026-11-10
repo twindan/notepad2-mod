@@ -228,8 +228,14 @@ DLGTEMPLATE* LoadThemedDialogTemplate(LPCTSTR,HINSTANCE);
 #define DARK_BORDER RGB(80,80,80)
 #define DARK_HOT RGB(65,65,65)
 
-void DarkMode_Init(void);
-BOOL DarkMode_Update(void);
+typedef enum {
+  THEME_SYSTEM,
+  THEME_DARK,
+  THEME_LIGHT
+} AppTheme;
+
+void DarkMode_Init(AppTheme);
+BOOL DarkMode_Update(AppTheme);
 BOOL DarkMode_IsEnabled(void);
 void DarkMode_SetTitleBar(HWND);
 void DarkMode_RefreshDialogs(void);

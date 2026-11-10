@@ -2027,7 +2027,16 @@ static SetWindowThemeFn setWindowTheme;
 static BOOL darkModeSupported;
 static BOOL darkModeEnabled;
 
-void DarkMode_Init(void)
+typedef enum {
+  APP_MODE_DEFAULT,
+  APP_MODE_ALLOW_DARK,
+  APP_MODE_FORCE_DARK,
+  APP_MODE_FORCE_LIGHT
+} PreferredAppMode;
+
+static PreferredAppMode preferredAppMode;
+
+void DarkMode_Init(AppTheme theme)
 {
   OSVERSIONINFOW version = { sizeof(OSVERSIONINFOW) };
   RtlGetVersionFn getVersion = (RtlGetVersionFn)GetProcAddress(
@@ -2050,27 +2059,42 @@ void DarkMode_Init(void)
   HMODULE dwm = LoadLibraryEx(L"dwmapi.dll",NULL,LOAD_LIBRARY_SEARCH_SYSTEM32);
   if (dwm)
     setWindowAttribute = (DwmSetWindowAttributeFn)GetProcAddress(dwm,"DwmSetWindowAttribute");
-  DarkMode_Update();
+  DarkMode_Update(theme);
 }
 
-BOOL DarkMode_Update(void)
+BOOL DarkMode_Update(AppTheme theme)
 {
   HIGHCONTRAST contrast = { sizeof(HIGHCONTRAST) };
-  DWORD lightTheme = 1, type = 0, size = sizeof(lightTheme);
-  BOOL enabled = darkModeSupported && PrivateIsAppThemed() &&
-    SystemParametersInfo(SPI_GETHIGHCONTRAST,sizeof(contrast),&contrast,0) &&
-    !(contrast.dwFlags & HCF_HIGHCONTRASTON) &&
-    SHGetValue(HKEY_CURRENT_USER,L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
-                L"AppsUseLightTheme",&type,&lightTheme,&size) == ERROR_SUCCESS &&
-    type == REG_DWORD && size == sizeof(lightTheme) &&
-    lightTheme == 0;
+  PreferredAppMode mode = APP_MODE_DEFAULT;
+  BOOL enabled = FALSE;
 
-  if (enabled == darkModeEnabled)
+  if (darkModeSupported && PrivateIsAppThemed() &&
+      SystemParametersInfo(SPI_GETHIGHCONTRAST,sizeof(contrast),&contrast,0) &&
+      !(contrast.dwFlags & HCF_HIGHCONTRASTON)) {
+    if (theme == THEME_DARK) {
+      mode = APP_MODE_FORCE_DARK;
+      enabled = TRUE;
+    }
+    else if (theme == THEME_LIGHT) {
+      mode = APP_MODE_FORCE_LIGHT;
+    }
+    else {
+      DWORD lightTheme = 1, type = 0, size = sizeof(lightTheme);
+      mode = APP_MODE_ALLOW_DARK;
+      enabled = SHGetValue(HKEY_CURRENT_USER,
+        L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+        L"AppsUseLightTheme",&type,&lightTheme,&size) == ERROR_SUCCESS &&
+        type == REG_DWORD && size == sizeof(lightTheme) && lightTheme == 0;
+    }
+  }
+
+  if (enabled == darkModeEnabled && mode == preferredAppMode)
     return FALSE;
 
   darkModeEnabled = enabled;
-  if (setPreferredAppMode)
-    setPreferredAppMode(enabled ? 1 : 0); // AllowDark / Default
+  if (setPreferredAppMode && mode != preferredAppMode)
+    setPreferredAppMode(mode);
+  preferredAppMode = mode;
   if (refreshColorPolicy)
     refreshColorPolicy();
   if (flushMenuThemes)
@@ -2091,6 +2115,12 @@ void DarkMode_SetTitleBar(HWND hwnd)
     // Windows 10 builds before 20H1 used attribute 19.
     if (FAILED(setWindowAttribute(hwnd,20,&darkModeEnabled,sizeof(darkModeEnabled))))
       setWindowAttribute(hwnd,19,&darkModeEnabled,sizeof(darkModeEnabled));
+    // Windows 11 supports explicit caption colors when Dark overrides a light system theme.
+    // Reset them for System and Light so DWM resumes drawing its normal caption.
+    COLORREF caption = preferredAppMode == APP_MODE_FORCE_DARK ? DARK_BACKGROUND : (COLORREF)-1;
+    COLORREF text = preferredAppMode == APP_MODE_FORCE_DARK ? DARK_TEXT : (COLORREF)-1;
+    setWindowAttribute(hwnd,35,&caption,sizeof(caption)); // DWMWA_CAPTION_COLOR
+    setWindowAttribute(hwnd,36,&text,sizeof(text));       // DWMWA_TEXT_COLOR
     SetWindowPos(hwnd,NULL,0,0,0,0,SWP_NOMOVE|SWP_NOSIZE|SWP_NOZORDER|
                  SWP_NOACTIVATE|SWP_FRAMECHANGED);
   }

@@ -183,6 +183,8 @@ BOOL      bTransparentMode;
 BOOL      bTransparentModeAvailable;
 BOOL      bShowToolbar;
 BOOL      bShowStatusbar;
+static AppTheme appTheme = THEME_SYSTEM;
+static const LPCWSTR appThemeNames[] = { L"System", L"Dark", L"Light" };
 
 typedef struct _wi
 {
@@ -670,12 +672,12 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE hPrevInst,LPSTR lpCmdLine,int n
   msgTaskbarCreated = RegisterWindowMessage(L"TaskbarCreated");
 
   hModUxTheme = LoadLibrary(L"uxtheme.dll");
-  DarkMode_Init();
 
   Scintilla_RegisterClasses(hInstance);
 
   // Load Settings
   LoadSettings();
+  DarkMode_Init(appTheme);
 
   if (!InitApplication(hInstance))
     return FALSE;
@@ -1169,7 +1171,7 @@ LRESULT CALLBACK MainWndProc(HWND hwnd,UINT umsg,WPARAM wParam,LPARAM lParam)
     case WM_THEMECHANGED:
     case WM_SYSCOLORCHANGE:
       if (IsWindow(hwndEdit) && IsWindow(hwndToolbar)) {
-        BOOL changed = DarkMode_Update();
+        BOOL changed = DarkMode_Update(appTheme);
         if (changed) {
           DarkMode_SetTitleBar(hwnd);
           DarkMode_ThemeControl(hwndEdit,L"DarkMode_Explorer");
@@ -2374,6 +2376,8 @@ void MsgInitMenu(HWND hwnd,WPARAM wParam,LPARAM lParam)
   CheckCmd(hmenu,IDM_VIEW_TOOLBAR,bShowToolbar);
   EnableCmd(hmenu,IDM_VIEW_CUSTOMIZETB,bShowToolbar);
   CheckCmd(hmenu,IDM_VIEW_STATUSBAR,bShowStatusbar);
+  CheckMenuRadioItem(hmenu,IDM_VIEW_THEME_SYSTEM,IDM_VIEW_THEME_LIGHT,
+                     IDM_VIEW_THEME_SYSTEM+appTheme,MF_BYCOMMAND);
 
   i = (int)SendMessage(hwndEdit,SCI_GETLEXER,0,0);
   //EnableCmd(hmenu,IDM_VIEW_AUTOCLOSETAGS,(i == SCLEX_HTML || i == SCLEX_XML));
@@ -4302,6 +4306,16 @@ LRESULT MsgCommand(HWND hwnd,WPARAM wParam,LPARAM lParam)
       break;
 
 
+    case IDM_VIEW_THEME_SYSTEM:
+    case IDM_VIEW_THEME_DARK:
+    case IDM_VIEW_THEME_LIGHT:
+      appTheme = (AppTheme)(LOWORD(wParam)-IDM_VIEW_THEME_SYSTEM);
+      SendMessage(hwnd,WM_SETTINGCHANGE,0,0);
+      if (*szIniFile && !IniSetString(L"Settings",L"Theme",appThemeNames[appTheme]))
+        MsgBox(MBWARN,IDS_WRITEINI_FAIL);
+      break;
+
+
     case IDM_VIEW_STICKYWINPOS:
       bStickyWinPos = IniGetInt(L"Settings2",L"StickyWindowPosition",bStickyWinPos);
       if (!bStickyWinPos) {
@@ -5885,6 +5899,16 @@ void LoadSettings()
   bShowStatusbar = IniSectionGetInt(pIniSection,L"ShowStatusbar",1);
   if (bShowStatusbar) bShowStatusbar = 1;
 
+  WCHAR themeName[32];
+  IniSectionGetString(pIniSection,L"Theme",appThemeNames[THEME_SYSTEM],themeName,COUNTOF(themeName));
+  appTheme = THEME_SYSTEM;
+  for (int i = THEME_DARK; i <= THEME_LIGHT; ++i) {
+    if (lstrcmpi(themeName,appThemeNames[i]) == 0) {
+      appTheme = (AppTheme)i;
+      break;
+    }
+  }
+
   cxEncodingDlg = IniSectionGetInt(pIniSection,L"EncodingDlgSizeX",256);
   cxEncodingDlg = max(cxEncodingDlg,0);
 
@@ -6081,6 +6105,7 @@ void SaveSettings(BOOL bSaveSettingsNow)
   IniSectionSetString(pIniSection,L"ToolbarButtons",tchToolbarButtons);
   IniSectionSetInt(pIniSection,L"ShowToolbar",bShowToolbar);
   IniSectionSetInt(pIniSection,L"ShowStatusbar",bShowStatusbar);
+  IniSectionSetString(pIniSection,L"Theme",appThemeNames[appTheme]);
   IniSectionSetInt(pIniSection,L"EncodingDlgSizeX",cxEncodingDlg);
   IniSectionSetInt(pIniSection,L"EncodingDlgSizeY",cyEncodingDlg);
   IniSectionSetInt(pIniSection,L"RecodeDlgSizeX",cxRecodeDlg);

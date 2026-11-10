@@ -361,6 +361,9 @@
 #define IDM_VIEW_GUIDUPPERBRACES        40455
 #define IDM_VIEW_GUIDLOWER               40456
 #define IDM_VIEW_GUIDUPPER               40457
+#define IDM_VIEW_THEME_SYSTEM           40458
+#define IDM_VIEW_THEME_DARK             40459
+#define IDM_VIEW_THEME_LIGHT            40460
 #define IDM_HELP_ABOUT                  40500
 #define IDM_CMDLINE_HELP                40501
 #define IDM_TRAY_RESTORE                40600

@@ -3046,6 +3046,8 @@ void Style_ApplyEditorStyles(HWND hwnd,BOOL dark)
     Style_SetStyles(hwnd,pLexNew->Styles[0].iStyle,pLexNew->Styles[0].szValue,dark); // lexer default
   SendMessage(hwnd,SCI_STYLECLEARALL,0,0);
 
+  if (dark)
+    SendMessage(hwnd,SCI_STYLESETBACK,STYLE_LINENUMBER,DARK_SURFACE);
   Style_SetStyles(hwnd,lexDefault.Styles[1+iIdx].iStyle,lexDefault.Styles[1+iIdx].szValue,dark); // linenumber
   Style_SetStyles(hwnd,lexDefault.Styles[2+iIdx].iStyle,lexDefault.Styles[2+iIdx].szValue,dark); // brace light
   Style_SetStyles(hwnd,lexDefault.Styles[3+iIdx].iStyle,lexDefault.Styles[3+iIdx].szValue,dark); // brace bad
