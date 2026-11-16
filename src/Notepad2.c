@@ -31,7 +31,6 @@
 #include <time.h>
 #include "scintilla.h"
 #include "SciLexer.h"
-#include "LexAHK.h"
 #include "notepad2.h"
 #include "edit.h"
 #include "styles.h"
@@ -1467,7 +1466,7 @@ LRESULT CALLBACK MainWndProc(HWND hwnd,UINT umsg,WPARAM wParam,LPARAM lParam)
 
                 else if (SendMessage(hwndEdit,SCI_GETLENGTH,0,0) >= 4) {
                   char tch[5] = "";
-                  SendMessage(hwndEdit,SCI_GETTEXT,COUNTOF(tch)-1,(LPARAM)tch);
+                  SendMessage(hwndEdit,SCI_GETTEXT,COUNTOF(tch),(LPARAM)tch);
                   if (lstrcmpiA(tch,".LOG") != 0) {
                     int iNewTopLine;
                     SendMessage(hwndEdit,SCI_SETSEL,iAnchorPos,iCurPos);
@@ -2513,7 +2512,7 @@ LRESULT MsgCommand(HWND hwnd,WPARAM wParam,LPARAM lParam)
           {
             if (SendMessage(hwndEdit,SCI_GETLENGTH,0,0) >= 4) {
               char tch[5] = "";
-              SendMessage(hwndEdit,SCI_GETTEXT,COUNTOF(tch)-1,(LPARAM)tch);
+              SendMessage(hwndEdit,SCI_GETTEXT,COUNTOF(tch),(LPARAM)tch);
               if (lstrcmpiA(tch,".LOG") != 0) {
                 int iNewTopLine;
                 SendMessage(hwndEdit,SCI_SETSEL,iAnchorPos,iCurPos);
@@ -7225,7 +7224,7 @@ BOOL FileLoad(BOOL bDontSave,BOOL bNew,BOOL bReload,BOOL bNoEncDetect,LPCWSTR lp
     // the .LOG feature ...
     if (SendMessage(hwndEdit,SCI_GETLENGTH,0,0) >= 4) {
       char tchLog[5] = "";
-      SendMessage(hwndEdit,SCI_GETTEXT,COUNTOF(tchLog)-1,(LPARAM)tchLog);
+      SendMessage(hwndEdit,SCI_GETTEXT,COUNTOF(tchLog),(LPARAM)tchLog);
       if (lstrcmpiA(tchLog,".LOG") == 0) {
         EditJumpTo(hwndEdit,-1,0);
         SendMessage(hwndEdit,SCI_BEGINUNDOACTION,0,0);

@@ -17,7 +17,7 @@
 ## Changes compared to the official notepad2-mod:
 
 * Dark mode support
-* Latest version of Scintilla
+* Scintilla 4.4.6
 * Added ability to insert GUID
 * Minor bug fixes
 

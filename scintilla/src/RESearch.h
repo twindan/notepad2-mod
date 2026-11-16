@@ -9,12 +9,13 @@
 #ifndef RESEARCH_H
 #define RESEARCH_H
 
-namespace Scintilla::Internal {
+namespace Scintilla {
 
 class CharacterIndexer {
 public:
 	virtual char CharAt(Sci::Position index) const=0;
-	virtual Sci::Position MovePositionOutsideChar(Sci::Position pos, [[maybe_unused]] Sci::Position moveDir) const noexcept=0;
+	virtual ~CharacterIndexer() {
+	}
 };
 
 class RESearch {
@@ -22,20 +23,18 @@ class RESearch {
 public:
 	explicit RESearch(CharClassify *charClassTable);
 	// No dynamic allocation so default copy constructor and assignment operator are OK.
-	void Clear();
-	const char *Compile(const char *pattern, Sci::Position length, bool caseSensitive, bool posix);
+	~RESearch();
+	void Clear() noexcept;
+	void GrabMatches(const CharacterIndexer &ci);
+	const char *Compile(const char *pattern, Sci::Position length, bool caseSensitive, bool posix) noexcept;
 	int Execute(const CharacterIndexer &ci, Sci::Position lp, Sci::Position endp);
-	void SetLineRange(Sci::Position startPos, Sci::Position endPos) noexcept {
-		lineStartPos = startPos;
-		lineEndPos = endPos;
-	}
 
 	static constexpr int MAXTAG = 10;
 	static constexpr int NOTFOUND = -1;
 
-	using MatchPositions = std::array<Sci::Position, MAXTAG>;
-	MatchPositions bopat;
-	MatchPositions eopat;
+	Sci::Position bopat[MAXTAG];
+	Sci::Position eopat[MAXTAG];
+	std::string pat[MAXTAG];
 
 private:
 
@@ -50,15 +49,14 @@ private:
 	void ChSetWithCase(unsigned char c, bool caseSensitive) noexcept;
 	int GetBackslashExpression(const char *pattern, int &incr) noexcept;
 
-	Sci::Position PMatch(const CharacterIndexer &ci, Sci::Position lp, Sci::Position endp, const char *ap);
+	Sci::Position PMatch(const CharacterIndexer &ci, Sci::Position lp, Sci::Position endp, char *ap);
 
-	// positions to match line start and line end
-	Sci::Position lineStartPos;
-	Sci::Position lineEndPos;
+	Sci::Position bol;
+	Sci::Position tagstk[MAXTAG];  /* subpat tag stack */
 	char nfa[MAXNFA];    /* automaton */
 	int sta;
+	unsigned char bittab[BITBLK]; /* bit table for CCL pre-set bits */
 	int failure;
-	std::array<unsigned char, BITBLK> bittab {}; /* bit table for CCL pre-set bits */
 	CharClassify *charClass;
 	bool iswordc(unsigned char x) const noexcept {
 		return charClass->IsWord(x);

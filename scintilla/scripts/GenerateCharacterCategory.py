@@ -1,19 +1,18 @@
 #!/usr/bin/env python3
-# Script to generate scintilla/src/CharacterCategoryMap.cxx and lexilla/lexlib/CharacterCategory.cxx
-# from Python's Unicode data
+# Script to generate CharacterCategory.cxx from Python's Unicode data
 # Should be run rarely when a Python with a new version of Unicode data is available.
-# Requires Python 3.6 or later
+# Requires Python 3.3 or later
 # Should not be run with old versions of Python.
 
-import pathlib, platform, sys, unicodedata
+import codecs, os, platform, sys, unicodedata
 
 from FileGenerator import Regenerate
 
 def findCategories(filename):
-    with filename.open(encoding="UTF-8") as infile:
-        lines = [x.strip() for x in infile if "\tcc" in x]
+    with codecs.open(filename, "r", "UTF-8") as infile:
+        lines = [x.strip() for x in infile.readlines() if "\tcc" in x]
     values = "".join(lines).replace(" ","").split(",")
-    print("Categrories:", values)
+    print(values)
     return [v[2:] for v in values]
 
 def updateCharacterCategory(filename):
@@ -43,11 +42,6 @@ def updateCharacterCategory(filename):
 
     Regenerate(filename, "//", values)
 
+categories = findCategories("../lexlib/CharacterCategory.h")
 
-scintillaDirectory = pathlib.Path(__file__).resolve().parent.parent
-
-categories = findCategories(scintillaDirectory / "src" / "CharacterCategoryMap.h")
-
-updateCharacterCategory(scintillaDirectory / "src" / "CharacterCategoryMap.cxx")
-
-updateCharacterCategory(scintillaDirectory.parent / "lexilla" / "lexlib" / "CharacterCategory.cxx")
+updateCharacterCategory("../lexlib/CharacterCategory.cxx")

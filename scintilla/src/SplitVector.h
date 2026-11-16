@@ -9,54 +9,45 @@
 #ifndef SPLITVECTOR_H
 #define SPLITVECTOR_H
 
-namespace Scintilla::Internal {
+namespace Scintilla {
 
 template <typename T>
 class SplitVector {
-	static constexpr size_t growthPortion = 6;
-	static constexpr size_t initialGrowSize = 8;
 protected:
 	std::vector<T> body;
 	T empty;	/// Returned as the result of out-of-bounds access.
-	ptrdiff_t lengthBody = 0;
-	ptrdiff_t part1Length = 0;
-	ptrdiff_t gapLength = 0;	/// invariant: gapLength == body.size() - lengthBody
-	size_t growSize = initialGrowSize;
+	ptrdiff_t lengthBody;
+	ptrdiff_t part1Length;
+	ptrdiff_t gapLength;	/// invariant: gapLength == body.size() - lengthBody
+	ptrdiff_t growSize;
 
 	/// Move the gap to a particular position so that insertion and
 	/// deletion at that point will not require much copying and
 	/// hence be fast.
 	void GapTo(ptrdiff_t position) noexcept {
 		if (position != part1Length) {
-			try {
-				if (gapLength > 0) {	// If gap to move
-					// This can never fail but std::move and std::move_backward are not noexcept.
-					if (position < part1Length) {
-						// Moving the gap towards start so moving elements towards end
-						std::move_backward(
-							body.data() + position,
-							body.data() + part1Length,
-							body.data() + gapLength + part1Length);
-					} else {	// position > part1Length
-						// Moving the gap towards end so moving elements towards start
-						std::move(
-							body.data() + part1Length + gapLength,
-							body.data() + gapLength + position,
-							body.data() + part1Length);
-					}
-				}
-				part1Length = position;
-			} catch (...) {
-				// Ignore any exception
+			if (position < part1Length) {
+				// Moving the gap towards start so moving elements towards end
+				std::move_backward(
+					body.data() + position,
+					body.data() + part1Length,
+					body.data() + gapLength + part1Length);
+			} else {	// position > part1Length
+				// Moving the gap towards end so moving elements towards start
+				std::move(
+					body.data() + part1Length + gapLength,
+					body.data() + gapLength + position,
+					body.data() + part1Length);
 			}
+			part1Length = position;
 		}
 	}
 
 	/// Check that there is room in the buffer for an insertion,
 	/// reallocating if more space needed.
 	void RoomFor(ptrdiff_t insertionLength) {
-		if (gapLength < insertionLength) {
-			while (growSize < (body.size() / growthPortion))
+		if (gapLength <= insertionLength) {
+			while (growSize < static_cast<ptrdiff_t>(body.size() / 6))
 				growSize *= 2;
 			ReAllocate(body.size() + insertionLength + growSize);
 		}
@@ -68,30 +59,42 @@ protected:
 		lengthBody = 0;
 		part1Length = 0;
 		gapLength = 0;
-		growSize = initialGrowSize;
+		growSize = 8;
 	}
 
 public:
 	/// Construct a split buffer.
-	explicit SplitVector(size_t growSize_=initialGrowSize) : empty(), growSize(growSize_) {
+	SplitVector() : empty(), lengthBody(0), part1Length(0), gapLength(0), growSize(8) {
 	}
 
-	[[nodiscard]] size_t GetGrowSize() const noexcept {
+	// Deleted so SplitVector objects can not be copied.
+	SplitVector(const SplitVector &) = delete;
+	SplitVector(SplitVector &&) = delete;
+	void operator=(const SplitVector &) = delete;
+	void operator=(SplitVector &&) = delete;
+
+	~SplitVector() {
+	}
+
+	ptrdiff_t GetGrowSize() const noexcept {
 		return growSize;
 	}
 
-	void SetGrowSize(size_t growSize_) noexcept {
+	void SetGrowSize(ptrdiff_t growSize_) noexcept {
 		growSize = growSize_;
 	}
 
 	/// Reallocate the storage for the buffer to be newSize and
 	/// copy existing contents to the new buffer.
 	/// Must not be used to decrease the size of the buffer.
-	void ReAllocate(size_t newSize) {
-		if (newSize > body.size()) {
+	void ReAllocate(ptrdiff_t newSize) {
+		if (newSize < 0)
+			throw std::runtime_error("SplitVector::ReAllocate: negative size.");
+
+		if (newSize > static_cast<ptrdiff_t>(body.size())) {
 			// Move the gap to the end
 			GapTo(lengthBody);
-			gapLength += newSize - body.size();
+			gapLength += newSize - static_cast<ptrdiff_t>(body.size());
 			// RoomFor implements a growth strategy but so does vector::resize so
 			// ensure vector::resize allocates exactly the amount wanted by
 			// calling reserve first.
@@ -102,17 +105,20 @@ public:
 
 	/// Retrieve the element at a particular position.
 	/// Retrieving positions outside the range of the buffer returns empty or 0.
-	[[nodiscard]] const T& ValueAt(ptrdiff_t position) const noexcept {
+	const T& ValueAt(ptrdiff_t position) const noexcept {
 		if (position < part1Length) {
 			if (position < 0) {
 				return empty;
+			} else {
+				return body[position];
 			}
-			return body[position];
+		} else {
+			if (position >= lengthBody) {
+				return empty;
+			} else {
+				return body[gapLength + position];
+			}
 		}
-		if (position >= lengthBody) {
-			return empty;
-		}
-		return body[gapLength + position];
 	}
 
 	/// Set the element at a particular position.
@@ -143,8 +149,9 @@ public:
 		PLATFORM_ASSERT(position >= 0 && position < lengthBody);
 		if (position < part1Length) {
 			return body[position];
+		} else {
+			return body[gapLength + position];
 		}
-		return body[gapLength + position];
 	}
 
 	/// Retrieve reference to the element at a particular position.
@@ -154,12 +161,13 @@ public:
 		PLATFORM_ASSERT(position >= 0 && position < lengthBody);
 		if (position < part1Length) {
 			return body[position];
+		} else {
+			return body[gapLength + position];
 		}
-		return body[gapLength + position];
 	}
 
 	/// Retrieve the length of the buffer.
-	[[nodiscard]] ptrdiff_t Length() const noexcept {
+	ptrdiff_t Length() const noexcept {
 		return lengthBody;
 	}
 
@@ -188,7 +196,7 @@ public:
 			}
 			RoomFor(insertLength);
 			GapTo(position);
-			std::fill_n(body.data() + part1Length, insertLength, v);
+			std::fill(body.data() + part1Length, body.data() + part1Length + insertLength, v);
 			lengthBody += insertLength;
 			part1Length += insertLength;
 			gapLength -= insertLength;
@@ -207,10 +215,9 @@ public:
 			}
 			RoomFor(insertLength);
 			GapTo(position);
-			T *ptr = body.data() + part1Length;
-			for (ptrdiff_t elem = 0; elem < insertLength; elem++, ptr++) {
+			for (ptrdiff_t elem = part1Length; elem < part1Length + insertLength; elem++) {
 				T emptyOne = {};
-				*ptr = std::move(emptyOne);
+				body[elem] = std::move(emptyOne);
 			}
 			lengthBody += insertLength;
 			part1Length += insertLength;
@@ -228,7 +235,7 @@ public:
 	}
 
 	/// Insert text into the buffer from an array.
-	void InsertFromArray(ptrdiff_t positionToInsert, const T *arr, ptrdiff_t positionFrom, ptrdiff_t insertLength) {
+	void InsertFromArray(ptrdiff_t positionToInsert, const T s[], ptrdiff_t positionFrom, ptrdiff_t insertLength) {
 		PLATFORM_ASSERT((positionToInsert >= 0) && (positionToInsert <= lengthBody));
 		if (insertLength > 0) {
 			if ((positionToInsert < 0) || (positionToInsert > lengthBody)) {
@@ -236,7 +243,7 @@ public:
 			}
 			RoomFor(insertLength);
 			GapTo(positionToInsert);
-			std::copy_n(arr + positionFrom, insertLength, body.data() + part1Length);
+			std::copy(s + positionFrom, s + positionFrom + insertLength, body.data() + part1Length);
 			lengthBody += insertLength;
 			part1Length += insertLength;
 			gapLength -= insertLength;
@@ -273,7 +280,7 @@ public:
 	}
 
 	/// Retrieve a range of elements into an array
-	void GetRange(T *buffer, ptrdiff_t position, ptrdiff_t retrieveLength) const {
+	void GetRange(T *buffer, ptrdiff_t position, ptrdiff_t retrieveLength) const noexcept {
 		// Split into up to 2 ranges, before and after the split then use memcpy on each.
 		ptrdiff_t range1Length = 0;
 		if (position < part1Length) {
@@ -282,11 +289,11 @@ public:
 			if (range1Length > part1AfterPosition)
 				range1Length = part1AfterPosition;
 		}
-		std::copy_n(body.data() + position, range1Length, buffer);
+		std::copy(body.data() + position, body.data() + position + range1Length, buffer);
 		buffer += range1Length;
 		position = position + range1Length + gapLength;
 		const ptrdiff_t range2Length = retrieveLength - range1Length;
-		std::copy_n(body.data() + position, range2Length, buffer);
+		std::copy(body.data() + position, body.data() + position + range2Length, buffer);
 	}
 
 	/// Compact the buffer and return a pointer to the first element.
@@ -308,23 +315,16 @@ public:
 				// Range overlaps gap, so move gap to start of range.
 				GapTo(position);
 				return body.data() + position + gapLength;
+			} else {
+				return body.data() + position;
 			}
-			return body.data() + position;
+		} else {
+			return body.data() + position + gapLength;
 		}
-		return body.data() + position + gapLength;
-	}
-
-	/// Return a pointer to a single element.
-	/// Does not rearrange the buffer.
-	[[nodiscard]] const T *ElementPointer(ptrdiff_t position) const noexcept {
-		if (position < part1Length) {
-			return body.data() + position;
-		}
-		return body.data() + position + gapLength;
 	}
 
 	/// Return the position of the gap within the buffer.
-	[[nodiscard]] ptrdiff_t GapPosition() const noexcept {
+	ptrdiff_t GapPosition() const noexcept {
 		return part1Length;
 	}
 };

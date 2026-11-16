@@ -28,8 +28,6 @@
 #include <stdio.h>
 #include "scintilla.h"
 #include "SciLexer.h"
-#include "LexAHK.h"
-#include "Lexilla.h"
 #include "notepad2.h"
 #include "edit.h"
 #include "styles.h"
@@ -325,7 +323,7 @@ static EDITSTYLE lexCSSStyles[] = {
                      { SCE_CSS_OPERATOR, 63132, L"Operator", L"fore:#B000B0", L"" },
                      { SCE_CSS_IMPORTANT, 63202, L"Important", L"bold; fore:#C80000", L"" },
                      { SCE_CSS_DIRECTIVE, 63203, L"Directive", L"bold; fore:#000000; back:#FFF1A8", L"" },
-                     { SCE_CSS_GROUP_RULE, 63382, L"Media", L"bold; fore:#0A246A", L"" },
+                     { SCE_CSS_MEDIA, 63382, L"Media", L"bold; fore:#0A246A", L"" },
                      { SCE_CSS_VARIABLE, 63249, L"Variable", L"bold; fore:#FF4000", L"" },
                      { SCE_CSS_UNKNOWN_PSEUDOCLASS, 63198, L"Unknown Pseudo-class", L"fore:#C80000; back:#FFFF80", L"" },
                      { SCE_CSS_UNKNOWN_IDENTIFIER, 63200, L"Unknown Property", L"fore:#C80000; back:#FFFF80", L"" },
@@ -2965,15 +2963,7 @@ void Style_SetLexer(HWND hwnd,PEDITLEXER pLexNew)
     pLexNew = pLexArray[iDefaultLexer];
 
   // Lexer
-  ILexer5 *lexer = NULL;
-  if (pLexNew->iLexer == SCLEX_AHK)
-    lexer = CreateAHKLexer();
-  else {
-    const char *lexerName = LexerNameFromID(pLexNew->iLexer);
-    if (lexerName)
-      lexer = CreateLexer(lexerName);
-  }
-  SendMessage(hwnd,SCI_SETILEXER,0,(LPARAM)lexer);
+  SendMessage(hwnd,SCI_SETLEXER,pLexNew->iLexer,0);
 
   if (pLexNew->iLexer == SCLEX_XML)
     SendMessage(hwnd,SCI_SETPROPERTY,(WPARAM)"lexer.xml.allow.scripts",(LPARAM)"1");
@@ -3507,7 +3497,7 @@ void Style_SetLexerFromFile(HWND hwnd,LPCWSTR lpszFile)
 
     if (!fNoCGIGuess && (lstrcmpi(wchMode,L"cgi") == 0 || lstrcmpi(wchMode,L"fcgi") == 0)) {
       char tchText[256];
-      SendMessage(hwnd,SCI_GETTEXT,(WPARAM)COUNTOF(tchText)-1,(LPARAM)tchText);
+      SendMessage(hwnd,SCI_GETTEXT,(WPARAM)COUNTOF(tchText),(LPARAM)tchText);
       StrTrimA(tchText," \t\n\r");
       if (pLexSniffed = Style_SniffShebang(tchText)) {
         if (iEncoding != g_DOSEncoding || pLexSniffed != &lexDefault || (
@@ -3540,7 +3530,7 @@ void Style_SetLexerFromFile(HWND hwnd,LPCWSTR lpszFile)
 
     if (!fNoCGIGuess && (lstrcmpi(lpszExt,L"cgi") == 0 || lstrcmpi(lpszExt,L"fcgi") == 0)) {
       char tchText[256];
-      SendMessage(hwnd,SCI_GETTEXT,(WPARAM)COUNTOF(tchText)-1,(LPARAM)tchText);
+      SendMessage(hwnd,SCI_GETTEXT,(WPARAM)COUNTOF(tchText),(LPARAM)tchText);
       StrTrimA(tchText," \t\n\r");
       if (pLexSniffed = Style_SniffShebang(tchText)) {
         pLexNew = pLexSniffed;
@@ -3582,7 +3572,7 @@ void Style_SetLexerFromFile(HWND hwnd,LPCWSTR lpszFile)
 
   if (!bFound && bAutoSelect && (!fNoHTMLGuess || !fNoCGIGuess)) {
     char tchText[512];
-    SendMessage(hwnd,SCI_GETTEXT,(WPARAM)COUNTOF(tchText)-1,(LPARAM)tchText);
+    SendMessage(hwnd,SCI_GETTEXT,(WPARAM)COUNTOF(tchText),(LPARAM)tchText);
     StrTrimA(tchText," \t\n\r");
     if (!fNoHTMLGuess && tchText[0] == '<') {
       if (StrStrIA(tchText,"<html"))
