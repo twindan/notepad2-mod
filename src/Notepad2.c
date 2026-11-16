@@ -1832,18 +1832,42 @@ static void PaintDarkStatusBar(HWND hwnd,HDC dc)
 static LRESULT CALLBACK DarkStatusBarProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam,
                                           UINT_PTR id,DWORD_PTR data)
 {
+  // The UI thread owns the single status bar.
+  static BOOL updatingText;
+  static BOOL redrawPending;
   switch (msg) {
+    case SB_SETTEXTA:
+    case SB_SETTEXTW:
+    case WM_SETTEXT: {
+      // The control can paint synchronously while replacing its text.
+      // Defer our text queries until the control has finished the update.
+      BOOL wasUpdating = updatingText;
+      updatingText = TRUE;
+      LRESULT result = DefSubclassProc(hwnd,msg,wParam,lParam);
+      updatingText = wasUpdating;
+      if (!updatingText && redrawPending) {
+        redrawPending = FALSE;
+        InvalidateRect(hwnd,NULL,FALSE);
+      }
+      return result;
+    }
     case WM_ERASEBKGND:
       return TRUE;
     case WM_PAINT: {
       PAINTSTRUCT paint;
       HDC dc = BeginPaint(hwnd,&paint);
-      PaintDarkStatusBar(hwnd,dc);
+      if (updatingText)
+        redrawPending = TRUE;
+      else
+        PaintDarkStatusBar(hwnd,dc);
       EndPaint(hwnd,&paint);
       return 0;
     }
     case WM_PRINTCLIENT:
-      PaintDarkStatusBar(hwnd,(HDC)wParam);
+      if (updatingText)
+        redrawPending = TRUE;
+      else
+        PaintDarkStatusBar(hwnd,(HDC)wParam);
       return 0;
     case WM_NCDESTROY:
       RemoveWindowSubclass(hwnd,DarkStatusBarProc,id);
