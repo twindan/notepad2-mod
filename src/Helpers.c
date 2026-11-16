@@ -27,7 +27,9 @@
 #include <shlwapi.h>
 #include <commctrl.h>
 #include <uxtheme.h>
+#include <stdarg.h>
 #include <stdio.h>
+#include <strsafe.h>
 #include <string.h>
 #include "scintilla.h"
 #include "helpers.h"
@@ -922,16 +924,24 @@ BOOL IsCmdEnabled(HWND hwnd,UINT uId)
 //
 int FormatString(LPWSTR lpOutput,int nOutput,UINT uIdFormat,...)
 {
-
-  WCHAR *p = LocalAlloc(LPTR,sizeof(WCHAR)*nOutput);
-
-  if (GetString(uIdFormat,p,nOutput))
-    wvsprintf(lpOutput,p,(LPVOID)((PUINT_PTR)&uIdFormat+1));
-
-  LocalFree(p);
-
+  if (nOutput <= 0)
+    return 0;
+  lpOutput[0] = L'\0';
+  LPCWSTR resource;
+  int length = LoadStringW(g_hInstance,uIdFormat,(LPWSTR)&resource,0);
+  if (length <= 0)
+    return 0;
+  WCHAR *format = LocalAlloc(LMEM_FIXED,((size_t)length+1)*sizeof(*format));
+  if (!format)
+    return 0;
+  CopyMemory(format,resource,length*sizeof(*format));
+  format[length] = L'\0';
+  va_list args;
+  va_start(args,uIdFormat);
+  StringCchVPrintfW(lpOutput,nOutput,format,args);
+  va_end(args);
+  LocalFree(format);
   return lstrlen(lpOutput);
-
 }
 
 

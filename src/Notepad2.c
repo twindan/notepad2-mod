@@ -7275,7 +7275,7 @@ BOOL FileSave(BOOL bSaveAlways,BOOL bAsk,BOOL bSaveAs,BOOL bSaveCopy)
   if (bAsk)
   {
     // File or "Untitled" ...
-    WCHAR tch[MAX_PATH];
+    WCHAR tch[COUNTOF(szCurFile)];
     if (lstrlen(szCurFile))
       lstrcpy(tch,szCurFile);
     else

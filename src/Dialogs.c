@@ -26,6 +26,8 @@
 #include <shellapi.h>
 #include <shlwapi.h>
 #include <commdlg.h>
+#include <stdarg.h>
+#include <strsafe.h>
 #include <string.h>
 #include "scintilla.h"
 #include "notepad2.h"
@@ -67,28 +69,31 @@ int MsgBox(int iType,UINT uIdMsg,...)
   if (!GetString(uIdMsg,szBuf,COUNTOF(szBuf)))
     return(0);
 
-  wvsprintf(szText,szBuf,(LPVOID)((PUINT_PTR)&uIdMsg + 1));
+  va_list args;
+  va_start(args,uIdMsg);
+  StringCchVPrintfW(szText,COUNTOF(szText),szBuf,args);
+  va_end(args);
 
   if (uIdMsg == IDS_ERR_LOADFILE || uIdMsg == IDS_ERR_SAVEFILE ||
       uIdMsg == IDS_CREATEINI_FAIL || uIdMsg == IDS_WRITEINI_FAIL ||
       uIdMsg == IDS_EXPORT_FAIL) {
-    LPVOID lpMsgBuf;
-    WCHAR wcht;
-    FormatMessage(
+    LPWSTR lpMsgBuf;
+    if (FormatMessage(
       FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM|FORMAT_MESSAGE_IGNORE_INSERTS,
       NULL,
       dwLastIOError,
       MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT),
       (LPTSTR)&lpMsgBuf,
       0,
-      NULL);
-    StrTrim(lpMsgBuf,L" \a\b\f\n\r\t\v");
-    StrCatBuff(szText,L"\n",COUNTOF(szText));
-    StrCatBuff(szText,lpMsgBuf,COUNTOF(szText));
-    LocalFree(lpMsgBuf);
-    wcht = *CharPrev(szText,StrEnd(szText));
-    if (IsCharAlphaNumeric(wcht) || wcht == '"' || wcht == '\'')
-      StrCatBuff(szText,L".",COUNTOF(szText));
+      NULL)) {
+      StrTrim(lpMsgBuf,L" \a\b\f\n\r\t\v");
+      StrCatBuff(szText,L"\n",COUNTOF(szText));
+      StrCatBuff(szText,lpMsgBuf,COUNTOF(szText));
+      LocalFree(lpMsgBuf);
+      WCHAR wcht = *CharPrev(szText,StrEnd(szText));
+      if (IsCharAlphaNumeric(wcht) || wcht == '"' || wcht == '\'')
+        StrCatBuff(szText,L".",COUNTOF(szText));
+    }
   }
 
   GetString(IDS_APPTITLE,szTitle,COUNTOF(szTitle));
