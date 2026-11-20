@@ -2268,6 +2268,28 @@ static void DarkMode_ApplyDialog(HWND hwnd)
   RedrawWindow(hwnd,NULL,NULL,RDW_INVALIDATE|RDW_ERASE|RDW_ALLCHILDREN|RDW_FRAME);
 }
 
+static LRESULT DarkMode_DialogColor(UINT msg,WPARAM wParam,LPARAM lParam)
+{
+  if (darkModeEnabled) {
+    switch (msg) {
+      case WM_CTLCOLORDLG:
+      case WM_CTLCOLORSTATIC:
+      case WM_CTLCOLORBTN:
+      case WM_CTLCOLORSCROLLBAR:
+      case WM_CTLCOLOREDIT:
+      case WM_CTLCOLORLISTBOX: {
+        HDC dc = (HDC)wParam;
+        COLORREF background = (msg == WM_CTLCOLOREDIT || msg == WM_CTLCOLORLISTBOX)
+          ? DARK_SURFACE : DARK_BACKGROUND;
+        SetTextColor(dc,IsWindowEnabled((HWND)lParam) ? DARK_TEXT : DARK_DISABLED_TEXT);
+        SetBkColor(dc,background);
+        return (INT_PTR)DarkMode_Brush(background);
+      }
+    }
+  }
+  return 0;
+}
+
 typedef struct {
   DLGPROC proc;
   LPARAM param;
@@ -2293,29 +2315,79 @@ static INT_PTR CALLBACK ThemedDialogProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM
   INT_PTR result = proc(hwnd,msg,wParam,lParam);
   if (msg == WM_NCDESTROY)
     RemoveProp(hwnd,themedDialogProcProperty);
-  if (!result && darkModeEnabled) {
+  if (!result)
+    result = DarkMode_DialogColor(msg,wParam,lParam);
+  return result;
+}
+
+
+// Subclass only message boxes created within the scoped, thread-local CBT hook.
+// Windows retains responsibility for button IDs, keyboard handling and modality.
+static LRESULT CALLBACK DarkMessageBoxProc(HWND hwnd,UINT msg,WPARAM wParam,LPARAM lParam,
+                                           UINT_PTR id,DWORD_PTR data)
+{
+  LRESULT color = DarkMode_DialogColor(msg,wParam,lParam);
+  if (color)
+    return color;
+
+  if (darkModeEnabled) {
     switch (msg) {
-      case WM_CTLCOLORDLG:
-      case WM_CTLCOLORSTATIC:
-      case WM_CTLCOLORBTN:
-      case WM_CTLCOLORSCROLLBAR:
-      case WM_CTLCOLOREDIT:
-      case WM_CTLCOLORLISTBOX: {
-        HDC dc = (HDC)wParam;
-        COLORREF background = (msg == WM_CTLCOLOREDIT || msg == WM_CTLCOLORLISTBOX)
-          ? DARK_SURFACE : DARK_BACKGROUND;
-        SetTextColor(dc,IsWindowEnabled((HWND)lParam) ? DARK_TEXT : DARK_DISABLED_TEXT);
-        SetBkColor(dc,background);
-        return (INT_PTR)DarkMode_Brush(background);
+      case WM_ERASEBKGND: {
+        RECT rect;
+        GetClientRect(hwnd,&rect);
+        FillRect((HDC)wParam,&rect,DarkMode_Brush(DARK_BACKGROUND));
+        return TRUE;
+      }
+      case WM_PAINT: {
+        PAINTSTRUCT paint;
+        HDC dc = BeginPaint(hwnd,&paint);
+        FillRect(dc,&paint.rcPaint,DarkMode_Brush(DARK_BACKGROUND));
+        EndPaint(hwnd,&paint);
+        return 0;
+      }
+      case WM_PRINTCLIENT: {
+        RECT rect;
+        GetClientRect(hwnd,&rect);
+        FillRect((HDC)wParam,&rect,DarkMode_Brush(DARK_BACKGROUND));
+        return 0;
       }
     }
   }
+
+  if (msg == WM_NCDESTROY)
+    RemoveWindowSubclass(hwnd,DarkMessageBoxProc,id);
+  return DefSubclassProc(hwnd,msg,wParam,lParam);
+}
+
+static LRESULT CALLBACK DarkMessageBoxHook(int code,WPARAM wParam,LPARAM lParam)
+{
+  if (code == HCBT_ACTIVATE) {
+    HWND hwnd = (HWND)wParam;
+    WCHAR className[32];
+    GetClassName(hwnd,className,COUNTOF(className));
+    if (lstrcmp(className,L"#32770") == 0 &&
+        SetWindowSubclass(hwnd,DarkMessageBoxProc,0,0))
+      DarkMode_ApplyDialog(hwnd);
+  }
+  return CallNextHookEx(NULL,code,wParam,lParam);
+}
+
+int ThemedMessageBoxIndirect(const MSGBOXPARAMS *params)
+{
+  HHOOK hook = NULL;
+  if (darkModeEnabled)
+    hook = SetWindowsHookEx(WH_CBT,DarkMessageBoxHook,NULL,GetCurrentThreadId());
+  int result = MessageBoxIndirect(params);
+  if (hook)
+    UnhookWindowsHookEx(hook);
   return result;
 }
 
 static BOOL CALLBACK DarkMode_RefreshDialog(HWND hwnd,LPARAM unused)
 {
-  if (GetProp(hwnd,themedDialogProcProperty))
+  DWORD_PTR data;
+  if (GetProp(hwnd,themedDialogProcProperty) ||
+      GetWindowSubclass(hwnd,DarkMessageBoxProc,0,&data))
     DarkMode_ApplyDialog(hwnd);
   return TRUE;
 }

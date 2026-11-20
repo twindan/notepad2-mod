@@ -239,6 +239,7 @@ BOOL DarkMode_Update(AppTheme);
 BOOL DarkMode_IsEnabled(void);
 void DarkMode_SetTitleBar(HWND);
 void DarkMode_RefreshDialogs(void);
+int ThemedMessageBoxIndirect(const MSGBOXPARAMS *);
 void DarkMode_ThemeControl(HWND,LPCWSTR);
 HBRUSH DarkMode_Brush(COLORREF);
 BOOL DarkMode_DrawMenu(HWND,UINT,LPARAM);

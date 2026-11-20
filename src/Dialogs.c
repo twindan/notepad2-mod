@@ -110,10 +110,13 @@ int MsgBox(int iType,UINT uIdMsg,...)
   if (!(hwnd = GetFocus()))
     hwnd = hwndMain;
 
-  return MessageBoxEx(hwnd,
-           szText,szTitle,
-           MB_SETFOREGROUND | iIcon,
-           MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT));
+  MSGBOXPARAMS params = { sizeof(MSGBOXPARAMS) };
+  params.hwndOwner = hwnd;
+  params.lpszText = szText;
+  params.lpszCaption = szTitle;
+  params.dwStyle = MB_SETFOREGROUND | iIcon;
+  params.dwLanguageId = MAKELANGID(LANG_NEUTRAL,SUBLANG_DEFAULT);
+  return ThemedMessageBoxIndirect(&params);
 
 }
 
@@ -143,7 +146,7 @@ void DisplayCmdLineHelp(HWND hwnd)
   mbp.lpfnMsgBoxCallback = NULL;
   mbp.dwLanguageId = MAKELANGID(LANG_NEUTRAL,SUBLANG_NEUTRAL);
 
-  MessageBoxIndirect(&mbp);
+  ThemedMessageBoxIndirect(&mbp);
 }
 
 
